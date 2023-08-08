@@ -1,16 +1,11 @@
-import React from 'react'
-import ReactDOM from 'react-dom/client'
-// import App from './App.tsx'
-import SeatMap from './SeatMap';
-import './index.css'
+import React from "react";
+import ReactDOM from "react-dom/client";
+import GlobalStyles from "./Andrew/globalStyles";
+import App from "./Andrew/App";
 
-// export default {SeatMap};
-ReactDOM.createRoot(document.getElementById('root')!).render(
+ReactDOM.createRoot(document.getElementById("root")!).render(
   <React.StrictMode>
-    <SeatMap
-      viewType='miniMap'
-      wheeLable={true}
-
-    />
-  </React.StrictMode>,
-)
+    <App />
+    <GlobalStyles />
+  </React.StrictMode>
+);
