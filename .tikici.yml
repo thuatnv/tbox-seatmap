@@ -1,0 +1,112 @@
+version: '2'
+config:
+  slack_notify: true
+  slack_channel: ticketbox-circleci
+environment:
+  BUILD_IMAGE: 'maven:3.6-jdk-11'
+jobs:
+  build_docker:
+    steps:
+      - build_image:
+          dockerfile: Dockerfile
+          buildkit: true
+  publish_docker:
+    steps:
+      - push_image
+  deploy_dev:
+    steps:
+      - deploy_dev:
+          cluster: dev
+          namespace: ticketbox
+          workload: tbox-seatmap
+          argocd_pipeline: generic-v2
+          deployment_config: dev
+  # deploy_prod:
+  #   steps:
+  #     - deploy_production:
+  #         cluster: k8s-ticketbox-prod
+  #         namespace: default
+  #         workload: tbox-seatmap
+  #         argocd_pipeline: generic-v2
+  #         deployment_config: prod
+  build_package:
+    docker:
+      - image:
+          name: node:16-slim
+    steps:
+      - restore_cache:
+          key: tbox-seatmap
+      - run:
+          name: 'Setup Github Package Registry'
+          command: |
+            npm config set "@tikivn:registry" "https://npm.pkg.tiki.services"
+            npm config set "//npm.pkg.tiki.services/:_authToken" "${NPM_LOCAL_REGISTRY_ACCESS_TOKEN}"
+      - run:
+          name: 'Install Dependencies'
+          command: yarn
+      - run:
+          name: 'Build Package'
+          command: yarn build
+      - run:
+          name: 'Publish Package'
+          command: yarn publish
+      - save_cache:
+          key: ekyc-fe
+          paths:
+            - /home/node/.yarn
+workflows:
+  jenkins_pipeline:
+    jobs:
+      - build_docker:
+          filters:
+            branches:
+              only:
+                - develop
+                - master
+      - publish_docker:
+          requires:
+            - build_docker
+          filters:
+            branches:
+              only:
+                - develop
+                - master
+      - deploy_dev:
+          requires:
+            - publish_docker
+          filters:
+            branches:
+              only:
+                - develop
+      # - deploy_prod:
+      #     requires:
+      #       - publish_docker
+      #     filters:
+      #       branches:
+      #         only:
+      #           - master
+      - build_package:
+          filters:
+            branches:
+              only:
+                - master
+            on:
+              release:
+                types: [created]
+deployment_config:
+  dev:
+    ingress:
+      hosts:
+        - host: tbox-seatmap.dev.tiki.services
+          paths:
+            - path: /
+              port: '80'
+    replicaCount: 1
+  prod:
+    ingress:
+      hosts:
+        - host: tbox-seatmap.tiki.services
+          paths:
+            - path: /
+              port: '80'
+    replicaCount: 1

@@ -1,6 +1,7 @@
+import React from "react";
 import { Circle } from "../react-konva";
 import { SEAT_SIZE } from "../utils/layout";
-import { SeatProps } from "src/types/seatMap";
+import { SeatProps } from "../../types/seatMap";
 
 function getColor(isBooked: boolean, isSelected: boolean): string {
   if (isSelected) {
@@ -38,6 +39,7 @@ const Seat = (props: SeatProps)=> {
         container.style.cursor = "";
       }}
       onClick={e => {
+        console.log(e)
         if (isBooked) {
           return;
         }
@@ -48,6 +50,7 @@ const Seat = (props: SeatProps)=> {
         }
       }}
       onTap={(e: any) => {
+        console.log(e);
         if (isBooked) {
           return;
         }

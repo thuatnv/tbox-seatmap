@@ -6,7 +6,7 @@ import { Stage, Layer } from "./react-konva";
 
 const SectionDetail = () => {
   console.log(dataSection);
-  const containerRef = React.useRef(null);
+  const containerRef: any = React.useRef(null);
   const stageRef = React.useRef(null);
 
   const [scale, setScale] = React.useState(1);
@@ -23,7 +23,7 @@ const SectionDetail = () => {
   const [popup, setPopup] = React.useState({ seat: null });
   // calculate available space for drawing
   React.useEffect(() => {
-    const newSize = {
+    const newSize: any = {
       width: containerRef?.current?.offsetWidth,
       height: containerRef?.current?.offsetHeight
     };
@@ -47,39 +47,39 @@ const SectionDetail = () => {
   }, [dataSection, size]);
 
   // togle scale on double clicks or taps
-  const toggleScale = React.useCallback(() => {
-    if (scale === 1) {
-      setScale(scaleToFit);
-    } else {
-      setScale(1);
-    }
-  }, [scale, scaleToFit]);
+  // const toggleScale = React.useCallback(() => {
+  //   if (scale === 1) {
+  //     setScale(scaleToFit);
+  //   } else {
+  //     setScale(1);
+  //   }
+  // }, [scale, scaleToFit]);
 
-  let lastSectionPosition = 0;
+  // const lastSectionPosition = 0;
 
-  const handleHover = React.useCallback((seat: any, pos: any) => {
-    setPopup({
-      seat: seat,
-      position: pos
-    });
-  }, []);
+  // const handleHover = React.useCallback((seat: any, pos: any) => {
+  //   setPopup({
+  //     seat: seat,
+  //     position: pos
+  //   });
+  // }, []);
 
-  const handleSelect = React.useCallback(
-    seatId => {
-      const newIds = selectedSeatsIds.concat([seatId]);
-      setSelectedSeatsIds(newIds);
-    },
-    [selectedSeatsIds]
-  );
+  // const handleSelect = React.useCallback(
+  //   seatId => {
+  //     const newIds = selectedSeatsIds.concat([seatId]);
+  //     setSelectedSeatsIds(newIds);
+  //   },
+  //   [selectedSeatsIds]
+  // );
 
-  const handleDeselect = React.useCallback(
-    seatId => {
-      const ids = selectedSeatsIds.slice();
-      ids.splice(ids.indexOf(seatId), 1);
-      setSelectedSeatsIds(ids);
-    },
-    [selectedSeatsIds]
-  );
+  // const handleDeselect = React.useCallback(
+  //   seatId => {
+  //     const ids = selectedSeatsIds.slice();
+  //     ids.splice(ids.indexOf(seatId), 1);
+  //     setSelectedSeatsIds(ids);
+  //   },
+  //   [selectedSeatsIds]
+  // );
 
   return (
     <div
