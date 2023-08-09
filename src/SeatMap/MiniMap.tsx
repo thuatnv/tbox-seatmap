@@ -3,6 +3,7 @@ import { Circle, Group, Layer, Stage, Text, Transformer } from "react-konva";
 import Konva from "konva";
 import {Seatmap, Row, Seat} from '../types/seatMap';
 import dataSeatMap from '../mock/seatMap.json';
+import Section from "./components/Section";
 
 const scaleBy = 1.05;
 const defaultScale = 1.5;
@@ -71,30 +72,9 @@ const MiniMap = () => {
           {seatmap.sections &&
             seatmap.sections.length > 0 &&
             seatmap.sections.map((section, index) => (
-              <Group
-                key={"section" + index}
-                // onMouseEnter={(evt) => handleMouseEnter(evt, index)}
-                // onMouseLeave={(evt) => handleMouseLeave(evt, index)}
-                ref={(node) => {
-                  if (node) {
-                    groupRefs.current[index] = node;
-                  }
-                }}
-                // onClick={(evt) => handleOnClick(evt, index)}
-              >
-                <>
-                  {
-                    section.elements &&
-                    section.elements?.length > 0 &&
-                    section.elements.map((e, i) => e.render(i))
-                  }
-                  {
-                    section.rows &&
-                    section.rows?.length > 0 &&
-                    section.rows.map(drawRow)
-                  }
-                </>
-              </Group>
+              <Section
+                
+              />
             ))}
           <Transformer
             ref={(node) => {

@@ -56,3 +56,16 @@ export interface Section {
   status?: number;
   attribute?: Attribute;
 };
+
+export interface SeatProps {
+  x: number;
+  y: number;
+  isSelected: boolean;
+  onHover: (name: string, absolute: any) => void;
+  onSelect: (name: string) => void;
+  onDeselect: (name: string) => void;
+  data: {
+    name: string;
+    status: string;
+  }
+}
