@@ -53,7 +53,7 @@ const MiniMap = () => {
               section?.elements?.map(({ data: path, fill }, idx) => {
                 return (
                   <Path
-                      {...{ key: idx, data: path, fill: fill || "#d3d3d3" }}
+                      {...{ key: idx, data: path, fill: "#d3d3d3" }}
                   />
                 );
               })
