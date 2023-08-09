@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { Circle, Group, Layer, Stage, Text, Path } from "./react-konva";
+import { Group, Layer, Path, Stage } from "react-konva";
 import Konva from "konva";
 import {Seatmap, Row, Seat} from '../types/seatMap';
 import dataSeatMap from '../mock/seatMap.json';
@@ -24,13 +24,12 @@ const MiniMap = () => {
     <div
     style={{
       position: "relative",
-      backgroundColor: "lightgrey",
-      width: "100vw",
+      // backgroundColor: "lightgrey",
+      width: "90vw",
       height: "100vh"
     }}
     ref={containerRef}
   >
-    dasdasdasd
     <Stage
         width={720}
         height={620}
@@ -47,20 +46,19 @@ const MiniMap = () => {
         }}
       >
         <Layer>
-          <Group>
-              {dataSeatMap &&
-                Object.keys(dataSeatMap).length &&
-                dataSeatMap?.sections?.map((section) =>
-                  section?.elements?.map(({ data: path, fill }, idx) => {
-                    console.log(path, 1111111);
-                    return (
-                      <Path
-                        {...{ key: idx, data: path, fill: fill || "#d3d3d3" }}
-                      />
-                    );
-                  })
-                )}
-            </Group>
+          <Group name="paths-group">
+          {dataSeatMap &&
+            Object.keys(dataSeatMap).length &&
+            dataSeatMap?.sections?.map((section) =>
+              section?.elements?.map(({ data: path, fill }, idx) => {
+                return (
+                  <Path
+                      {...{ key: idx, data: path, fill: fill || "#d3d3d3" }}
+                  />
+                );
+              })
+            )}
+          </Group>
         </Layer>
       </Stage>
     </div>
