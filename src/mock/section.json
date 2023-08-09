@@ -1,0 +1,798 @@
+{
+  "id": 385,
+  "seatMapId": 38,
+  "name": "A",
+  "isReservingSeat": true,
+  "isStage": false,
+  "capacity": 0,
+  "ticketTypeId": 23,
+  "status": 1,
+  "rows": [
+    {
+      "id": 3953,
+      "name": "A",
+      "sectionId": 385,
+      "status": 1,
+      "seats": [
+        {
+          "id": 59733,
+          "name": "1",
+          "rowId": 3953,
+          "status": 1,
+          "position": 0,
+          "x": 97.68,
+          "y": 126.85
+        },
+        {
+          "id": 59734,
+          "name": "2",
+          "rowId": 3953,
+          "status": 1,
+          "position": 1,
+          "x": 108.68,
+          "y": 126.85
+        },
+        {
+          "id": 59735,
+          "name": "3",
+          "rowId": 3953,
+          "status": 1,
+          "position": 2,
+          "x": 119.68,
+          "y": 126.85
+        },
+        {
+          "id": 59736,
+          "name": "4",
+          "rowId": 3953,
+          "status": 1,
+          "position": 3,
+          "x": 130.68,
+          "y": 126.85
+        },
+        {
+          "id": 59737,
+          "name": "5",
+          "rowId": 3953,
+          "status": 1,
+          "position": 4,
+          "x": 141.68,
+          "y": 126.85
+        },
+        {
+          "id": 59738,
+          "name": "6",
+          "rowId": 3953,
+          "status": 1,
+          "position": 5,
+          "x": 152.68,
+          "y": 126.85
+        },
+        {
+          "id": 59739,
+          "name": "7",
+          "rowId": 3953,
+          "status": 1,
+          "position": 6,
+          "x": 163.68,
+          "y": 126.85
+        },
+        {
+          "id": 59740,
+          "name": "8",
+          "rowId": 3953,
+          "status": 1,
+          "position": 7,
+          "x": 174.68,
+          "y": 126.85
+        },
+        {
+          "id": 59741,
+          "name": "9",
+          "rowId": 3953,
+          "status": 1,
+          "position": 8,
+          "x": 185.68,
+          "y": 126.85
+        },
+        {
+          "id": 59742,
+          "name": "10",
+          "rowId": 3953,
+          "status": 1,
+          "position": 9,
+          "x": 196.68,
+          "y": 126.85
+        },
+        {
+          "id": 59743,
+          "name": "11",
+          "rowId": 3953,
+          "status": 1,
+          "position": 10,
+          "x": 207.68,
+          "y": 126.85
+        },
+        {
+          "id": 59744,
+          "name": "12",
+          "rowId": 3953,
+          "status": 1,
+          "position": 11,
+          "x": 218.68,
+          "y": 126.85
+        },
+        {
+          "id": 59745,
+          "name": "13",
+          "rowId": 3953,
+          "status": 1,
+          "position": 12,
+          "x": 229.68,
+          "y": 126.85
+        }
+      ]
+    },
+    {
+      "id": 3954,
+      "name": "B",
+      "sectionId": 385,
+      "status": 1,
+      "seats": [
+        {
+          "id": 59746,
+          "name": "1",
+          "rowId": 3954,
+          "status": 1,
+          "position": 0,
+          "x": 97.68,
+          "y": 141.85
+        },
+        {
+          "id": 59747,
+          "name": "2",
+          "rowId": 3954,
+          "status": 1,
+          "position": 1,
+          "x": 108.68,
+          "y": 141.85
+        },
+        {
+          "id": 59748,
+          "name": "3",
+          "rowId": 3954,
+          "status": 1,
+          "position": 2,
+          "x": 119.68,
+          "y": 141.85
+        },
+        {
+          "id": 59749,
+          "name": "4",
+          "rowId": 3954,
+          "status": 1,
+          "position": 3,
+          "x": 130.68,
+          "y": 141.85
+        },
+        {
+          "id": 59750,
+          "name": "5",
+          "rowId": 3954,
+          "status": 1,
+          "position": 4,
+          "x": 141.68,
+          "y": 141.85
+        },
+        {
+          "id": 59751,
+          "name": "6",
+          "rowId": 3954,
+          "status": 1,
+          "position": 5,
+          "x": 152.68,
+          "y": 141.85
+        },
+        {
+          "id": 59752,
+          "name": "7",
+          "rowId": 3954,
+          "status": 1,
+          "position": 6,
+          "x": 163.68,
+          "y": 141.85
+        },
+        {
+          "id": 59753,
+          "name": "8",
+          "rowId": 3954,
+          "status": 1,
+          "position": 7,
+          "x": 174.68,
+          "y": 141.85
+        },
+        {
+          "id": 59754,
+          "name": "9",
+          "rowId": 3954,
+          "status": 1,
+          "position": 8,
+          "x": 185.68,
+          "y": 141.85
+        },
+        {
+          "id": 59755,
+          "name": "10",
+          "rowId": 3954,
+          "status": 1,
+          "position": 9,
+          "x": 196.68,
+          "y": 141.85
+        },
+        {
+          "id": 59756,
+          "name": "11",
+          "rowId": 3954,
+          "status": 1,
+          "position": 10,
+          "x": 207.68,
+          "y": 141.85
+        },
+        {
+          "id": 59757,
+          "name": "12",
+          "rowId": 3954,
+          "status": 1,
+          "position": 11,
+          "x": 218.68,
+          "y": 141.85
+        },
+        {
+          "id": 59758,
+          "name": "13",
+          "rowId": 3954,
+          "status": 1,
+          "position": 12,
+          "x": 229.68,
+          "y": 141.85
+        }
+      ]
+    },
+    {
+      "id": 3955,
+      "name": "C",
+      "sectionId": 385,
+      "status": 1,
+      "seats": [
+        {
+          "id": 59759,
+          "name": "1",
+          "rowId": 3955,
+          "status": 1,
+          "position": 0,
+          "x": 97.68,
+          "y": 156.85
+        },
+        {
+          "id": 59760,
+          "name": "2",
+          "rowId": 3955,
+          "status": 1,
+          "position": 1,
+          "x": 108.68,
+          "y": 156.85
+        },
+        {
+          "id": 59761,
+          "name": "3",
+          "rowId": 3955,
+          "status": 1,
+          "position": 2,
+          "x": 119.68,
+          "y": 156.85
+        },
+        {
+          "id": 59762,
+          "name": "4",
+          "rowId": 3955,
+          "status": 1,
+          "position": 3,
+          "x": 130.68,
+          "y": 156.85
+        },
+        {
+          "id": 59763,
+          "name": "5",
+          "rowId": 3955,
+          "status": 1,
+          "position": 4,
+          "x": 141.68,
+          "y": 156.85
+        },
+        {
+          "id": 59764,
+          "name": "6",
+          "rowId": 3955,
+          "status": 1,
+          "position": 5,
+          "x": 152.68,
+          "y": 156.85
+        },
+        {
+          "id": 59765,
+          "name": "7",
+          "rowId": 3955,
+          "status": 1,
+          "position": 6,
+          "x": 163.68,
+          "y": 156.85
+        },
+        {
+          "id": 59766,
+          "name": "8",
+          "rowId": 3955,
+          "status": 1,
+          "position": 7,
+          "x": 174.68,
+          "y": 156.85
+        },
+        {
+          "id": 59767,
+          "name": "9",
+          "rowId": 3955,
+          "status": 1,
+          "position": 8,
+          "x": 185.68,
+          "y": 156.85
+        },
+        {
+          "id": 59768,
+          "name": "10",
+          "rowId": 3955,
+          "status": 1,
+          "position": 9,
+          "x": 196.68,
+          "y": 156.85
+        },
+        {
+          "id": 59769,
+          "name": "11",
+          "rowId": 3955,
+          "status": 1,
+          "position": 10,
+          "x": 207.68,
+          "y": 156.85
+        },
+        {
+          "id": 59770,
+          "name": "12",
+          "rowId": 3955,
+          "status": 1,
+          "position": 11,
+          "x": 218.68,
+          "y": 156.85
+        },
+        {
+          "id": 59771,
+          "name": "13",
+          "rowId": 3955,
+          "status": 1,
+          "position": 12,
+          "x": 229.68,
+          "y": 156.85
+        }
+      ]
+    },
+    {
+      "id": 3956,
+      "name": "D",
+      "sectionId": 385,
+      "status": 1,
+      "seats": [
+        {
+          "id": 59772,
+          "name": "1",
+          "rowId": 3956,
+          "status": 1,
+          "position": 0,
+          "x": 97.68,
+          "y": 171.85
+        },
+        {
+          "id": 59773,
+          "name": "2",
+          "rowId": 3956,
+          "status": 1,
+          "position": 1,
+          "x": 108.68,
+          "y": 171.85
+        },
+        {
+          "id": 59774,
+          "name": "3",
+          "rowId": 3956,
+          "status": 1,
+          "position": 2,
+          "x": 119.68,
+          "y": 171.85
+        },
+        {
+          "id": 59775,
+          "name": "4",
+          "rowId": 3956,
+          "status": 1,
+          "position": 3,
+          "x": 130.68,
+          "y": 171.85
+        },
+        {
+          "id": 59776,
+          "name": "5",
+          "rowId": 3956,
+          "status": 1,
+          "position": 4,
+          "x": 141.68,
+          "y": 171.85
+        },
+        {
+          "id": 59777,
+          "name": "6",
+          "rowId": 3956,
+          "status": 1,
+          "position": 5,
+          "x": 152.68,
+          "y": 171.85
+        },
+        {
+          "id": 59778,
+          "name": "7",
+          "rowId": 3956,
+          "status": 1,
+          "position": 6,
+          "x": 163.68,
+          "y": 171.85
+        },
+        {
+          "id": 59779,
+          "name": "8",
+          "rowId": 3956,
+          "status": 1,
+          "position": 7,
+          "x": 174.68,
+          "y": 171.85
+        },
+        {
+          "id": 59780,
+          "name": "9",
+          "rowId": 3956,
+          "status": 1,
+          "position": 8,
+          "x": 185.68,
+          "y": 171.85
+        },
+        {
+          "id": 59781,
+          "name": "10",
+          "rowId": 3956,
+          "status": 1,
+          "position": 9,
+          "x": 196.68,
+          "y": 171.85
+        },
+        {
+          "id": 59782,
+          "name": "11",
+          "rowId": 3956,
+          "status": 1,
+          "position": 10,
+          "x": 207.68,
+          "y": 171.85
+        },
+        {
+          "id": 59783,
+          "name": "12",
+          "rowId": 3956,
+          "status": 1,
+          "position": 11,
+          "x": 218.68,
+          "y": 171.85
+        },
+        {
+          "id": 59784,
+          "name": "13",
+          "rowId": 3956,
+          "status": 1,
+          "position": 12,
+          "x": 229.68,
+          "y": 171.85
+        }
+      ]
+    },
+    {
+      "id": 3957,
+      "name": "E",
+      "sectionId": 385,
+      "status": 1,
+      "seats": [
+        {
+          "id": 59785,
+          "name": "1",
+          "rowId": 3957,
+          "status": 1,
+          "position": 0,
+          "x": 97.68,
+          "y": 186.85
+        },
+        {
+          "id": 59786,
+          "name": "2",
+          "rowId": 3957,
+          "status": 1,
+          "position": 1,
+          "x": 108.68,
+          "y": 186.85
+        },
+        {
+          "id": 59787,
+          "name": "3",
+          "rowId": 3957,
+          "status": 1,
+          "position": 2,
+          "x": 119.68,
+          "y": 186.85
+        },
+        {
+          "id": 59788,
+          "name": "4",
+          "rowId": 3957,
+          "status": 1,
+          "position": 3,
+          "x": 130.68,
+          "y": 186.85
+        },
+        {
+          "id": 59789,
+          "name": "5",
+          "rowId": 3957,
+          "status": 1,
+          "position": 4,
+          "x": 141.68,
+          "y": 186.85
+        },
+        {
+          "id": 59790,
+          "name": "6",
+          "rowId": 3957,
+          "status": 1,
+          "position": 5,
+          "x": 152.68,
+          "y": 186.85
+        },
+        {
+          "id": 59791,
+          "name": "7",
+          "rowId": 3957,
+          "status": 1,
+          "position": 6,
+          "x": 163.68,
+          "y": 186.85
+        },
+        {
+          "id": 59792,
+          "name": "8",
+          "rowId": 3957,
+          "status": 1,
+          "position": 7,
+          "x": 174.68,
+          "y": 186.85
+        },
+        {
+          "id": 59793,
+          "name": "9",
+          "rowId": 3957,
+          "status": 1,
+          "position": 8,
+          "x": 185.68,
+          "y": 186.85
+        },
+        {
+          "id": 59794,
+          "name": "10",
+          "rowId": 3957,
+          "status": 1,
+          "position": 9,
+          "x": 196.68,
+          "y": 186.85
+        },
+        {
+          "id": 59795,
+          "name": "11",
+          "rowId": 3957,
+          "status": 1,
+          "position": 10,
+          "x": 207.68,
+          "y": 186.85
+        },
+        {
+          "id": 59796,
+          "name": "12",
+          "rowId": 3957,
+          "status": 1,
+          "position": 11,
+          "x": 218.68,
+          "y": 186.85
+        },
+        {
+          "id": 59797,
+          "name": "13",
+          "rowId": 3957,
+          "status": 1,
+          "position": 12,
+          "x": 229.68,
+          "y": 186.85
+        }
+      ]
+    },
+    {
+      "id": 3958,
+      "name": "F",
+      "sectionId": 385,
+      "status": 1,
+      "seats": [
+        {
+          "id": 59798,
+          "name": "1",
+          "rowId": 3958,
+          "status": 1,
+          "position": 0,
+          "x": 97.68,
+          "y": 201.85
+        },
+        {
+          "id": 59799,
+          "name": "2",
+          "rowId": 3958,
+          "status": 1,
+          "position": 1,
+          "x": 108.68,
+          "y": 201.85
+        },
+        {
+          "id": 59800,
+          "name": "3",
+          "rowId": 3958,
+          "status": 1,
+          "position": 2,
+          "x": 119.68,
+          "y": 201.85
+        },
+        {
+          "id": 59801,
+          "name": "4",
+          "rowId": 3958,
+          "status": 1,
+          "position": 3,
+          "x": 130.68,
+          "y": 201.85
+        },
+        {
+          "id": 59802,
+          "name": "5",
+          "rowId": 3958,
+          "status": 1,
+          "position": 4,
+          "x": 141.68,
+          "y": 201.85
+        },
+        {
+          "id": 59803,
+          "name": "6",
+          "rowId": 3958,
+          "status": 1,
+          "position": 5,
+          "x": 152.68,
+          "y": 201.85
+        },
+        {
+          "id": 59804,
+          "name": "7",
+          "rowId": 3958,
+          "status": 1,
+          "position": 6,
+          "x": 163.68,
+          "y": 201.85
+        },
+        {
+          "id": 59805,
+          "name": "8",
+          "rowId": 3958,
+          "status": 1,
+          "position": 7,
+          "x": 174.68,
+          "y": 201.85
+        },
+        {
+          "id": 59806,
+          "name": "9",
+          "rowId": 3958,
+          "status": 1,
+          "position": 8,
+          "x": 185.68,
+          "y": 201.85
+        },
+        {
+          "id": 59807,
+          "name": "10",
+          "rowId": 3958,
+          "status": 1,
+          "position": 9,
+          "x": 196.68,
+          "y": 201.85
+        },
+        {
+          "id": 59808,
+          "name": "11",
+          "rowId": 3958,
+          "status": 1,
+          "position": 10,
+          "x": 207.68,
+          "y": 201.85
+        },
+        {
+          "id": 59809,
+          "name": "12",
+          "rowId": 3958,
+          "status": 1,
+          "position": 11,
+          "x": 218.68,
+          "y": 201.85
+        },
+        {
+          "id": 59810,
+          "name": "13",
+          "rowId": 3958,
+          "status": 1,
+          "position": 12,
+          "x": 229.68,
+          "y": 201.85
+        }
+      ]
+    }
+  ],
+  "ticketType": {
+    "id": 23,
+    "name": "VIP (Không dành cho trẻ dưới 8 tuổi)",
+    "showingId": 19,
+    "originalId": 0,
+    "backgroundURL": "",
+    "status": 2,
+    "bookingStatus": "",
+    "description": "tickettype description",
+    "isFree": false,
+    "price": 1600000,
+    "originalPrice": 0,
+    "quantity": 20000,
+    "quantitySold": 0,
+    "quantityLocking": 0,
+    "maxQtyPerOrder": 10,
+    "minQtyPerOrder": 1,
+    "startTime": "2019-07-14T17:00:00Z",
+    "endTime": "2025-12-30T23:59:00Z",
+    "position": 1,
+    "color": "AFE2AF",
+    "seatSections": [
+      {
+        "id": 642,
+        "ticketTypeId": 23,
+        "sectionId": 385,
+        "capacity": 0,
+        "status": 0,
+        "createdAt": "2023-08-04T14:16:12.445576Z",
+        "updatedAt": "2023-08-04T14:16:12.445576Z"
+      }
+    ],
+    "imageUrl": "",
+    "createdAt": "2022-11-01T08:56:49.268371Z",
+    "updatedAt": "2022-11-16T04:29:40.58065Z"
+  }
+}
