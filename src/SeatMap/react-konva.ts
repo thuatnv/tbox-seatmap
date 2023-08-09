@@ -3,6 +3,7 @@
 import "konva/lib/shapes/Rect";
 import "konva/lib/shapes/Circle";
 import "konva/lib/shapes/Text";
+import "konva/lib/shapes/Path";
 
 // load minimal version of 'react-konva`
 export {
@@ -11,5 +12,6 @@ export {
   Group,
   Rect,
   Circle,
-  Text
+  Text, 
+  Path,
 } from "react-konva/lib/ReactKonvaCore";
