@@ -1,22 +1,21 @@
 import { useEffect, useRef, useState } from "react";
 import { Group, Layer, Path, Stage } from "react-konva";
 import Konva from "konva";
-import {Seatmap, Row, Seat} from '../types/seatMap';
+import { Seatmap } from '../types/seatMap';
 import dataSeatMap from '../mock/seatMap.json';
-import Section from "./components/Section";
 import React from "react";
 
 const MiniMap = () => {
   const containerRef = React.useRef(null);
-  const [seatmap, setSeatmap] = useState<Seatmap>({});
-  const groupRefs = useRef<Konva.Group[]>([]);
+  // const [seatmap, setSeatmap] = useState<Seatmap>({});
+  // const groupRefs = useRef<Konva.Group[]>([]);
   const selectRef = useRef<Konva.Transformer>();
-  const layerRef = useRef<Konva.Layer>();
+  // const layerRef = useRef<Konva.Layer>();
   const stageRef = useRef<Konva.Stage>();
 
   useEffect(() => {
-    setSeatmap(dataSeatMap);
-    console.log(dataSeatMap);
+    // setSeatmap(dataSeatMap);
+    // console.log(dataSeatMap);
   }, []);
 
 

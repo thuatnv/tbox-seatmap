@@ -3,7 +3,7 @@ export interface Seatmap {
   sections?: Section[];
   viewBox?: string;
   status?: number;
-};
+}
 export interface Attribute {
   x?: number;
   y?: number;
@@ -17,7 +17,7 @@ export interface Attribute {
 export interface Row {
   name: string;
   seats: Seat[];
-};
+}
 
 export interface Seat {
   name: string;
@@ -26,14 +26,14 @@ export interface Seat {
   r: number;
   location?: string;
   position?: number;
-};
+}
 
 export interface Ele {
   id?: string;
   type?: EleType;
   data?: string | null;
   fill?: string;
-};
+}
 
 export interface SeatMapData {
   onClickSeat?: () => void;
@@ -55,7 +55,7 @@ export interface Section {
   capacity?: number;
   status?: number;
   attribute?: Attribute;
-};
+}
 
 export interface SeatProps {
   x: number;

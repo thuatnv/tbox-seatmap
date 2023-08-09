@@ -1,7 +1,7 @@
 import React, {Fragment} from "react";
 import { Group, Text } from "../react-konva";
 import Seat from "../components/Seat";
-import { SEATS_DISTANCE, SUBSECTION_PADDING, SEAT_SIZE } from "../utils/layout";
+import { SEAT_SIZE } from "../utils/layout";
 
 const Section = (
   {
@@ -20,7 +20,7 @@ const Section = (
         const row = dataSection.rows[rowKey].seats;
         return (
           <Fragment key={rowKey}>
-            {row.map((seat: any, seatIndex: number) => {
+            {row.map((seat: any, seatIndex: number) => {     
               return (
                 <Seat
                   key={seat.name}
