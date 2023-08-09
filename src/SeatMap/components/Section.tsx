@@ -1,6 +1,6 @@
 import React, {Fragment} from "react";
 import { Group, Text } from "../react-konva";
-import Seat from "./Seat";
+import Seat from "../components/Seat";
 import { SEATS_DISTANCE, SUBSECTION_PADDING, SEAT_SIZE } from "../utils/layout";
 
 const Section = (
