@@ -1,0 +1,43 @@
+name: Tiki eKYC Package
+on:
+  release:
+    types: [created]
+
+jobs:
+  build:
+    runs-on: self-hosted
+    steps:
+      - uses: actions/checkout@master
+      - uses: actions/setup-node@v3
+        with:
+          node-version: 16
+      - run: yarn
+      - run: yarn build
+
+  publish-gpr:
+    needs: build
+    runs-on: self-hosted
+    permissions:
+      actions: write
+      checks: write
+      contents: write
+      deployments: write
+      discussions: write
+      issues: write
+      packages: write
+      pages: write
+      pull-requests: write
+      repository-projects: write
+      security-events: write
+      statuses: write
+    steps:
+      - uses: actions/checkout@master
+      - uses: actions/setup-node@v3
+        with:
+          node-version: 16
+      - run: yarn
+      - run: |
+          yarn build
+          yarn publish
+        env:
+          NODE_AUTH_TOKEN: ${{secrets.GITHUB_TOKEN}}
