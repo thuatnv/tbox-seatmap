@@ -53,8 +53,8 @@ const Seatmap = ({ data }: SeatmapProps) => {
       const groupBoundingBox = group.getClientRect();
 
       // Calculate the new position to center the group
-      const stageWidth = stage.width();
-      const stageHeight = stage.height();
+      const stageWidth = stage?.width() as number;
+      const stageHeight = stage?.height() as number;
       const groupWidth = groupBoundingBox.width;
       const groupHeight = groupBoundingBox.height;
       const newX = (stageWidth - groupWidth) / 2;
@@ -62,7 +62,7 @@ const Seatmap = ({ data }: SeatmapProps) => {
 
       // Update the position of the group
       group.position({ x: newX, y: newY });
-      stage.batchDraw();
+      stage?.batchDraw();
     }
 
     setScale(1);
