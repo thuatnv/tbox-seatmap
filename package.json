@@ -1,6 +1,5 @@
 {
   "name": "tbox-seatmap",
-  "private": true,
   "version": "0.0.0",
   "source": "src/index.ts",
   "main": "build/index.js",
