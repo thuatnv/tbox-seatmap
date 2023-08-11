@@ -12,22 +12,16 @@ module.exports = {
   ],
   ignorePatterns: ["dist", ".eslintrc.cjs"],
   parser: "@typescript-eslint/parser",
-  plugins: ["react-refresh"],
+  plugins: ["react-refresh", "react-hooks", "@typescript-eslint"],
   rules: {
-<<<<<<< HEAD
-    'react-refresh/only-export-components': ['warn', {
-      allowConstantExport: true
-    }],
-    'no-unused-vars': 'off',
-    '@typescript-eslint/no-unused-vars': 'off',
-  }
-=======
+    "@typescript-eslint/no-unused-vars": "warn",
     "react-refresh/only-export-components": [
       "warn",
       {
         allowConstantExport: true,
       },
     ],
+    "react-hooks/rules-of-hooks": "warn", // Checks rules of Hooks
+    "react-hooks/exhaustive-deps": "warn" // Checks effect dependencies
   },
->>>>>>> c394f6d (feat: render type-safe raw implement of Seatmap)
 };

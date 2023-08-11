@@ -1,3 +1,5 @@
+import { IRect } from "konva/lib/types";
+
 export const cssStrToObj = (stylesStr: string) =>
   stylesStr
     .split(";")
@@ -20,4 +22,9 @@ export const hex2rgb = (hex: string, opacity?: number) => {
   }
   if (opacity) h?.push(String(opacity));
   return "rgba(" + h?.join(",") + ")";
+};
+
+export const extractWHFromViewBox = (viewBox: string): Partial<IRect> => {
+  const values = viewBox.split(" ");
+  return { width: Number(values[2]), height: Number(values[3]) };
 };

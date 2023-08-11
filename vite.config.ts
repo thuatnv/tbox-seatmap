@@ -1,16 +1,7 @@
-<<<<<<< HEAD
-import { defineConfig } from 'vite'
-import react from '@vitejs/plugin-react'
-import pkg from './package.json';
-=======
+
 import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react";
-<<<<<<< HEAD
-// import path from "path";
->>>>>>> d5678d8 (feat: render seat mpa data from API)
-=======
 import path from "path";
->>>>>>> 4a7f14e (feat: new folder structure before migrating seatmap code)
 
 // https://vitejs.dev/config/
 export default defineConfig({
