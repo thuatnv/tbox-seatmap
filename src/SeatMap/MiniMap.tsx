@@ -1,17 +1,15 @@
-import { useEffect, useRef, useState } from "react";
-import { Group, Layer, Path, Stage } from "react-konva";
+import React, { useEffect, useRef, useState } from "react";
+import { Group, Layer, Path, Stage } from "./react-konva";
 import Konva from "konva";
-import { Seatmap } from '../types/seatMap';
 import dataSeatMap from '../mock/seatMap.json';
-import React from "react";
 
 const MiniMap = () => {
-  const containerRef = React.useRef(null);
+  // const containerRef = useRef(null);
   // const [seatmap, setSeatmap] = useState<Seatmap>({});
   // const groupRefs = useRef<Konva.Group[]>([]);
-  const selectRef = useRef<Konva.Transformer>();
+  // const selectRef = useRef<Konva.Transformer>();
   // const layerRef = useRef<Konva.Layer>();
-  const stageRef = useRef<Konva.Stage>();
+  // const stageRef = useRef<Konva.Stage>();
 
   useEffect(() => {
     // setSeatmap(dataSeatMap);
@@ -27,22 +25,22 @@ const MiniMap = () => {
       width: "90vw",
       height: "100vh"
     }}
-    ref={containerRef}
+    // ref={containerRef}
   >
     <Stage
         width={720}
         height={620}
         // onWheel={handleOnWheel}
-        ref={(node) => {
-          if (node) {
-            stageRef.current = node;
-          }
-        }}
-        onClick={(evt) => {
-          if (evt.target == stageRef.current) {
-            selectRef.current?.nodes([]);
-          }
-        }}
+        // ref={(node) => {
+        //   if (node) {
+        //     stageRef.current = node;
+        //   }
+        // }}
+        // onClick={(evt) => {
+        //   if (evt.target == stageRef.current) {
+        //     selectRef.current?.nodes([]);
+        //   }
+        // }}
       >
         <Layer>
           <Group name="paths-group">

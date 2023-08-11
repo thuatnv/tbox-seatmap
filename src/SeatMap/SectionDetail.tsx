@@ -5,7 +5,6 @@ import { Stage, Layer } from "./react-konva";
 
 
 const SectionDetail = () => {
-  console.log(dataSection);
   const containerRef: any = React.useRef(null);
   const stageRef = React.useRef(null);
 

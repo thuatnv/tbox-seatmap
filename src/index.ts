@@ -1,3 +1,3 @@
-import SeatMap from "./SeatMap";
-
-export default SeatMap;
+export * from "konva";
+export * from 'react-konva';
+export * from "./SeatMap";
