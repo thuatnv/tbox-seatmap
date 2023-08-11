@@ -1,4 +1,4 @@
-export interface SeatmapAPIData {
+export interface SMResponse {
   status: number;
   message: string;
   data: Data;
@@ -33,8 +33,6 @@ export interface Section {
   status: number;
   elements: Element[];
   attribute: Attribute;
-  ticketTypeId?: number;
-  ticketType?: TicketType;
 }
 
 export interface Element {
@@ -55,41 +53,4 @@ export interface Attribute {
   scaleX: number;
   scaleY: number;
   rotate: number;
-}
-
-export interface TicketType {
-  id: number;
-  name: string;
-  showingId: number;
-  originalId: number;
-  backgroundURL: string;
-  status: number;
-  bookingStatus: string;
-  description: string;
-  isFree: boolean;
-  price: number;
-  originalPrice: number;
-  quantity: number;
-  quantitySold: number;
-  quantityLocking: number;
-  maxQtyPerOrder: number;
-  minQtyPerOrder: number;
-  startTime: string;
-  endTime: string;
-  position: number;
-  color: string;
-  seatSections: SeatSection[];
-  imageUrl: string;
-  createdAt: string;
-  updatedAt: string;
-}
-
-export interface SeatSection {
-  id: number;
-  ticketTypeId: number;
-  sectionId: number;
-  capacity: number;
-  status: number;
-  createdAt: string;
-  updatedAt: string;
 }
