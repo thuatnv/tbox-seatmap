@@ -1,8 +1,8 @@
-import { Stage } from "konva/lib/Stage";
 import { Layer } from "konva/lib/Layer";
 import { KonvaEventObject } from "konva/lib/Node";
+import { Stage } from "konva/lib/Stage";
 import { RefObject } from "react";
-import { scaleBy } from "./constants";
+import { maxScale, minScale } from "./constants";
 
 export const handleOnWheel = (
   e: KonvaEventObject<WheelEvent>,
@@ -21,13 +21,15 @@ export const handleOnWheel = (
 
   let direction = e.evt.deltaY < 0 ? 1 : -1;
   if (e.evt.ctrlKey) direction = -direction;
-  const newScale = direction > 0 ? oldScale * scaleBy : oldScale / scaleBy;
+  const newScale = direction > 0 ? oldScale * 0.95 : oldScale / 0.95;
   const newPos = {
     x: (pointer?.x || 0) - mousePointTo.x * newScale,
     y: (pointer?.y || 0) - mousePointTo.y * newScale,
   };
-  scaleRef.current.scale({ x: newScale, y: newScale });
-  scaleRef.current.position(newPos);
+  if (newScale >= minScale && newScale <= maxScale) {
+    scaleRef.current.scale({ x: newScale, y: newScale });
+    scaleRef.current.position(newPos);
+  }
 };
 
 export const handleResetRefs = (

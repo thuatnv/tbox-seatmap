@@ -17,7 +17,7 @@ import { ReactComponent as ResetIcon } from "resources/svg/icon-reset-green.svg"
 
 import Button from "components/Button";
 import { extractWHFromViewBox } from "utils";
-import { scaleBy } from "./constants";
+import { maxScale, minScale, scaleBy, wheelVsBtnOffset } from "./constants";
 import { handleChainActions, handleOnWheel } from "./helpers";
 import { SeatmapWrapper } from "./style";
 
@@ -128,18 +128,27 @@ const SeatMap: React.FC<Partial<SeatmapProps>> = ({
   }, [resetValuesTracker]);
   const handleZoom = useCallback(
     (type: "out" | "in") => {
-      handleChainActions([
-        () => setScale(scale + scaleBy * (type === "out" ? -1 : 1)),
-        checkIfNeedReset,
-      ]);
+      const newScale = Math.abs(scale + scaleBy * (type === "out" ? -1 : 1));
+      if (newScale >= minScale - wheelVsBtnOffset && newScale <= maxScale) {
+        handleChainActions([
+          () => setScale(scale + scaleBy * (type === "out" ? -1 : 1)),
+          checkIfNeedReset,
+        ]);
+      }
     },
     [scale, checkIfNeedReset]
   );
   // TODO: handleOnSectionClicked
 
   // event handlers
-  const onWheelStage = (e: KonvaEventObject<WheelEvent>) =>
-    isWheelable ? handleOnWheel(e, stageRef, layerRef) : null;
+  const onWheelStage = (e: KonvaEventObject<WheelEvent>) => {
+    if (!isWheelable) return;
+    handleOnWheel(e, stageRef, layerRef);
+    handleChainActions([
+      () => handleOnWheel(e, stageRef, layerRef),
+      () => setScale(layerRef?.current?.scaleX() as number),
+    ]);
+  };
   const onClickStage = (e: KonvaEventObject<MouseEvent>) => {
     if (e.target === stageRef.current) tfmRef?.current?.nodes([]);
   };
