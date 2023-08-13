@@ -1,15 +1,21 @@
-import Konva from "konva";
-import { KonvaEventObject } from "konva/lib/Node";
-import { IRect } from "konva/lib/types";
 import { useCallback, useEffect, useRef, useState } from "react";
-import { Group, Layer, Path, Stage } from "react-konva";
+import { Group, Layer, Path, Stage, Transformer } from "react-konva";
 
+import { Group as GroupType } from "konva/lib/Group";
+import { Layer as LayerType } from "konva/lib/Layer";
+import { KonvaEventObject } from "konva/lib/Node";
+import { Stage as StageType } from "konva/lib/Stage";
+import { Path as PathType } from "konva/lib/shapes/Path";
+import { Rect as RectType } from "konva/lib/shapes/Rect";
+import { Transformer as TransformerType } from "konva/lib/shapes/Transformer";
+import { IRect } from "konva/lib/types";
+import { Result } from "types/seatmap";
+
+import { ReactComponent as MinusIcon } from "resources/svg/icon-minus-green.svg";
 import { ReactComponent as PlusIcon } from "resources/svg/icon-plus-green.svg";
 import { ReactComponent as ResetIcon } from "resources/svg/icon-reset-green.svg";
-import { ReactComponent as MinusIcon } from "resources/svg/icon-minus-green.svg";
 
 import Button from "components/Button";
-import { Result } from "types/seatmap";
 import { extractWHFromViewBox } from "utils";
 import { handleChainActions, handleOnWheel } from "./helpers";
 import { SeatmapWrapper } from "./style";
@@ -44,11 +50,11 @@ const SeatMap: React.FC<Partial<SeatmapProps>> = ({
   const [shouldReset, setShouldReset] = useState<boolean>(false);
 
   // refs
-  const stageRef = useRef<Konva.Stage>(null);
-  const layerRef = useRef<Konva.Layer>(null);
-  const groupRef = useRef<Konva.Group>(null);
-  const tfmRef = useRef<Konva.Transformer>(null);
-  const sectionGroupRefs = useRef<(Konva.Path | Konva.Rect)[]>([]);
+  const stageRef = useRef<StageType>(null);
+  const layerRef = useRef<LayerType>(null);
+  const groupRef = useRef<GroupType>(null);
+  const tfmRef = useRef<TransformerType>(null);
+  const sectionGroupRefs = useRef<(PathType | RectType)[]>([]);
 
   // methods
   const handleBackToInitState = useCallback(() => {
@@ -94,11 +100,6 @@ const SeatMap: React.FC<Partial<SeatmapProps>> = ({
       150
     );
   }, [handleBackToInitState]);
-  const onWheelStage = (e: KonvaEventObject<WheelEvent>) =>
-    isWheelable ? handleOnWheel(e, stageRef, layerRef) : null;
-  const onClickStage = (e: KonvaEventObject<MouseEvent>) => {
-    if (e.target === stageRef.current) tfmRef?.current?.nodes([]);
-  };
   const checkIfNeedReset = useCallback(() => {
     const layer = layerRef.current;
     if (layer) {
@@ -116,6 +117,22 @@ const SeatMap: React.FC<Partial<SeatmapProps>> = ({
       }
     }
   }, [resetValuesTracker]);
+  // TODO: handleOnSectionClicked
+
+  // event handlers
+  const onWheelStage = (e: KonvaEventObject<WheelEvent>) =>
+    isWheelable ? handleOnWheel(e, stageRef, layerRef) : null;
+  const onClickStage = (e: KonvaEventObject<MouseEvent>) => {
+    if (e.target === stageRef.current) tfmRef?.current?.nodes([]);
+  };
+  const onMouseEnter = (e: KonvaEventObject<MouseEvent>) => {
+    const container = e.target?.getStage()?.container();
+    if (container) container.style.cursor = "pointer";
+  };
+  const onMouseLeave = (e: KonvaEventObject<MouseEvent>) => {
+    const container = e.target?.getStage()?.container();
+    if (container) container.style.cursor = "";
+  };
 
   // effects
   useEffect(() => {
@@ -184,13 +201,15 @@ const SeatMap: React.FC<Partial<SeatmapProps>> = ({
           >
             <Group
               ref={groupRef}
-              width={groupDimensions.width}
-              height={groupDimensions.height}
+              width={groupDimensions?.width}
+              height={groupDimensions?.height}
             >
               {data?.sections?.map((section) => {
                 return section?.elements?.map(({ data, fill }, idx) => {
                   const commonProps = {
                     opacity: isResetDone ? 1 : 0,
+                    onMouseEnter: section?.isStage ? () => {} : onMouseEnter,
+                    onMouseLeave: section?.isStage ? () => {} : onMouseLeave,
                   };
                   return (
                     <Path
@@ -204,6 +223,7 @@ const SeatMap: React.FC<Partial<SeatmapProps>> = ({
                   );
                 });
               })}
+              <Transformer ref={tfmRef} />
             </Group>
           </Layer>
         </Stage>

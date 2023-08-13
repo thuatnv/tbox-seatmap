@@ -1,12 +1,13 @@
-import Konva from "konva";
+import { Stage } from "konva/lib/Stage";
+import { Layer } from "konva/lib/Layer";
 import { KonvaEventObject } from "konva/lib/Node";
 import { RefObject } from "react";
 import { scaleBy } from "./constants";
 
 export const handleOnWheel = (
   e: KonvaEventObject<WheelEvent>,
-  targetRef: RefObject<Konva.Stage>,
-  scaleRef: RefObject<Konva.Layer>
+  targetRef: RefObject<Stage>,
+  scaleRef: RefObject<Layer>
 ) => {
   e.evt.preventDefault();
   if (!targetRef.current || !scaleRef.current) return;
@@ -30,7 +31,7 @@ export const handleOnWheel = (
 };
 
 export const handleResetRefs = (
-  ...targetRefs: (RefObject<Konva.Stage> | RefObject<Konva.Layer>)[]
+  ...targetRefs: (RefObject<Stage> | RefObject<Layer>)[]
 ) => {
   for (const targetRef of targetRefs) {
     targetRef?.current?.offsetX(0);
