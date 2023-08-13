@@ -17,6 +17,7 @@ import { ReactComponent as ResetIcon } from "resources/svg/icon-reset-green.svg"
 
 import Button from "components/Button";
 import { extractWHFromViewBox } from "utils";
+import { scaleBy } from "./constants";
 import { handleChainActions, handleOnWheel } from "./helpers";
 import { SeatmapWrapper } from "./style";
 
@@ -48,6 +49,7 @@ const SeatMap: React.FC<Partial<SeatmapProps>> = ({
     Record<string, Partial<IRect>>
   >({});
   const [shouldReset, setShouldReset] = useState<boolean>(false);
+  const [scale, setScale] = useState<number>(0);
 
   // refs
   const stageRef = useRef<StageType>(null);
@@ -67,6 +69,8 @@ const SeatMap: React.FC<Partial<SeatmapProps>> = ({
         const scaleY = stage.height() / group.height();
         const scale = Math.min(scaleX, scaleY);
         layer.scale({ x: scale, y: scale });
+        setScale(scale);
+
         const stageCenterX = stage.width() / 2;
         const stageCenterY = stage.height() / 2;
         const groupCenterX = (group.width() * scale) / 2;
@@ -101,22 +105,36 @@ const SeatMap: React.FC<Partial<SeatmapProps>> = ({
     );
   }, [handleBackToInitState]);
   const checkIfNeedReset = useCallback(() => {
+    const stage = stageRef.current;
     const layer = layerRef.current;
-    if (layer) {
+    const group = groupRef.current;
+
+    if (stage && layer && group) {
+      const currentScale = layer.scaleX();
+      const currentX = layer.x();
+      const currentY = layer.y();
+
       if (resetValuesTracker && Object.keys(resetValuesTracker).length) {
-        const currentScale = layer.scale();
-        const currentPosition = layer.position();
-        const isScaleDiff =
-          currentScale?.x !== resetValuesTracker.scale.x &&
-          currentScale?.y !== resetValuesTracker.scale.y;
-        const isPosDiff =
-          currentPosition.x !== resetValuesTracker.position.x &&
-          currentPosition.y !== resetValuesTracker.position.y;
-        setShouldReset(isScaleDiff || isPosDiff);
-        return isScaleDiff || isPosDiff;
+        const resetScale = resetValuesTracker.scale.x as number;
+        const resetX = resetValuesTracker.position.x as number;
+        const resetY = resetValuesTracker.position.y as number;
+        const isScaleReset = Math.abs(currentScale - resetScale) > 0.001;
+        const isPositionReset =
+          Math.abs(currentX - resetX) > 0.001 ||
+          Math.abs(currentY - resetY) > 0.001;
+        setShouldReset(isScaleReset || isPositionReset);
       }
     }
   }, [resetValuesTracker]);
+  const handleZoom = useCallback(
+    (type: "out" | "in") => {
+      handleChainActions([
+        () => setScale(scale + scaleBy * (type === "out" ? -1 : 1)),
+        checkIfNeedReset,
+      ]);
+    },
+    [scale, checkIfNeedReset]
+  );
   // TODO: handleOnSectionClicked
 
   // event handlers
@@ -169,13 +187,13 @@ const SeatMap: React.FC<Partial<SeatmapProps>> = ({
       <div id="stage-container">
         {hasTools && (
           <div id="btns-container">
-            <Button>
+            <Button onClick={() => handleZoom("in")}>
               <PlusIcon />
             </Button>
             <Button disabled={!shouldReset} onClick={handleReset}>
               <ResetIcon />
             </Button>
-            <Button>
+            <Button onClick={() => handleZoom("out")}>
               <MinusIcon />
             </Button>
           </div>
@@ -194,6 +212,7 @@ const SeatMap: React.FC<Partial<SeatmapProps>> = ({
           <Layer
             id="seatmap-layer"
             ref={layerRef}
+            scale={{ x: scale, y: scale }} // Add this line
             draggable={isDraggable}
             onDragEnd={() => {
               checkIfNeedReset();

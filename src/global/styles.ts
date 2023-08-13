@@ -37,7 +37,7 @@ const GlobalStyles = createGlobalStyle`
     gap: 1rem;
   }
 
-  .dark-container {
+  .dark-wrap {
     width: 100%;
     height: 100dvh;
     background-color: #000;

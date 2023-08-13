@@ -8,14 +8,10 @@ const SampleApp = () => {
     `/v1/events/showings/20/seatmap`
   );
 
-  if (loading)
-    return (
-      <div className="dark-container">Loading seatmap by showing ID...</div>
-    );
-  if (error)
-    return <div className="dark-container">Opps! Error: {`${error}`}</div>;
+  if (loading) return <div className="dark-wrap">Loading seat map data...</div>;
+  if (error) return <div className="dark-wrap">Opps! Error: {`${error}`}</div>;
   return (
-    <div className="App dark-container">
+    <div className="App dark-wrap">
       {data && (
         <SeatMap
           w={initStageW}

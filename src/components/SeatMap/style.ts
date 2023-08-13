@@ -1,8 +1,7 @@
 import styled from "styled-components";
 
-type SeatmapWrapperProps = {
-  readyToTouch?: boolean;
-};
+// object = placeholder
+type SeatmapWrapperProps = object;
 
 export const SeatmapWrapper = styled.div<SeatmapWrapperProps>`
   /* background-color: #000; */
