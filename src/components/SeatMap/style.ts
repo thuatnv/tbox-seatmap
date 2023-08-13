@@ -12,7 +12,7 @@ export const SeatmapWrapper = styled.div<SeatmapWrapperProps>`
     position: relative;
     border-radius: 0.25rem;
 
-    border-top: 3px solid;
+    /* border-top: 3px solid; */
     border-bottom: 3px solid;
     border-image-slice: 1;
     border-image-source: linear-gradient(
@@ -24,42 +24,46 @@ export const SeatmapWrapper = styled.div<SeatmapWrapperProps>`
     );
 
     #btns-container {
+      background-color: #00000060;
       position: absolute;
-      top: 0.8rem;
-      left: 0.8rem;
-      /* background-color: lime; */
+      /* top: 0.8rem; */
+      /* left: 0.8rem; */
+
+      z-index: 50;
+      padding: 0.2rem;
+      border-radius: 0.2rem;
+
       display: flex;
       align-items: center;
       justify-content: space-between;
-      gap: 0.5rem;
+      gap: 0.4rem;
 
       button {
         width: 2.5rem;
         height: 2.5rem;
-        outline: none;
-        border: none;
-        border-radius: 2px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        background-color: #00000080;
+        border-radius: 0.2rem;
+        background-color: transparent;
         border: 1px solid #2dc275;
-        cursor: pointer;
-        z-index: 1000;
+        backdrop-filter: blur(0.2rem);
+        transition: all 0.3s ease-in-out;
+      }
 
-        img {
-          width: 100%;
-          height: 100%;
-          padding: 0.5rem;
-        }
+      button:hover {
+        background-color: #ffffff30;
+      }
 
-        :hover {
-          background-color: #d3d3d340;
+      button.disabled {
+        border: 1px solid #a6a6b0;
+        cursor: not-allowed;
+        svg {
+          path {
+            fill: #a6a6b0;
+          }
         }
       }
 
-      #reset {
-        border: 1px solid #a6a6b0;
+      button.disabled:hover {
+        background-color: transparent;
       }
     }
   }

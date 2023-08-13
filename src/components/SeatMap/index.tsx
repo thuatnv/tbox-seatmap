@@ -4,6 +4,11 @@ import { IRect } from "konva/lib/types";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { Group, Layer, Path, Stage } from "react-konva";
 
+import { ReactComponent as PlusIcon } from "resources/svg/icon-plus-green.svg";
+import { ReactComponent as ResetIcon } from "resources/svg/icon-reset-green.svg";
+import { ReactComponent as MinusIcon } from "resources/svg/icon-minus-green.svg";
+
+import Button from "components/Button";
 import { Result } from "types/seatmap";
 import { extractWHFromViewBox } from "utils";
 import { handleChainActions, handleOnWheel } from "./helpers";
@@ -20,14 +25,14 @@ type SeatmapProps = {
   mode: number;
 };
 
-const SeatMap = ({
+const SeatMap: React.FC<Partial<SeatmapProps>> = ({
   data = undefined,
   w = 0,
   h = 0,
   isWheelable = false,
   isDraggable = false,
   hasTools = false,
-}: Partial<SeatmapProps>) => {
+}) => {
   // states
   const [groupDimensions, setGroupDimensions] = useState<Partial<IRect>>({});
   const [stageCenter, setStageCenter] = useState<Partial<IRect>>({});
@@ -36,6 +41,7 @@ const SeatMap = ({
   const [resetValuesTracker, setResetValuesTracker] = useState<
     Record<string, Partial<IRect>>
   >({});
+  const [shouldReset, setShouldReset] = useState<boolean>(false);
 
   // refs
   const stageRef = useRef<Konva.Stage>(null);
@@ -55,7 +61,6 @@ const SeatMap = ({
         const scaleY = stage.height() / group.height();
         const scale = Math.min(scaleX, scaleY);
         layer.scale({ x: scale, y: scale });
-
         const stageCenterX = stage.width() / 2;
         const stageCenterY = stage.height() / 2;
         const groupCenterX = (group.width() * scale) / 2;
@@ -74,6 +79,7 @@ const SeatMap = ({
             y: offsetY,
           },
         });
+        setShouldReset(false);
       }
     }
   }, []);
@@ -105,6 +111,7 @@ const SeatMap = ({
         const isPosDiff =
           currentPosition.x !== resetValuesTracker.position.x &&
           currentPosition.y !== resetValuesTracker.position.y;
+        setShouldReset(isScaleDiff || isPosDiff);
         return isScaleDiff || isPosDiff;
       }
     }
@@ -143,15 +150,38 @@ const SeatMap = ({
   return (
     <SeatmapWrapper>
       <div id="stage-container">
+        {hasTools && (
+          <div id="btns-container">
+            <Button>
+              <PlusIcon />
+            </Button>
+            <Button disabled={!shouldReset} onClick={handleReset}>
+              <ResetIcon />
+            </Button>
+            <Button>
+              <MinusIcon />
+            </Button>
+          </div>
+        )}
         <Stage
           id="seatmap-stage"
           width={w}
           height={h}
           ref={stageRef}
-          onWheel={onWheelStage}
+          onWheel={(e) => {
+            onWheelStage(e);
+            checkIfNeedReset();
+          }}
           onClick={onClickStage}
         >
-          <Layer id="seatmap-layer" ref={layerRef} draggable={isDraggable}>
+          <Layer
+            id="seatmap-layer"
+            ref={layerRef}
+            draggable={isDraggable}
+            onDragEnd={() => {
+              checkIfNeedReset();
+            }}
+          >
             <Group
               ref={groupRef}
               width={groupDimensions.width}
