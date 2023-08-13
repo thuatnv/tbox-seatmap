@@ -19,8 +19,12 @@ const useGetData = <T extends object>(
     const fetchData = async () => {
       try {
         const rs: AxiosResponse<ApiResponse<T>> = await fetcher.get(url);
-        setData(rs?.data?.data);
-        setLoading(false);
+
+        // SET TIMEOUT IS FOR DEV ONLY
+        setTimeout(() => {
+          setData(rs?.data?.data);
+          setLoading(false);
+        }, 1000);
       } catch (error) {
         if (error instanceof Error) {
           setError(error.message);

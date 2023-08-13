@@ -14,6 +14,8 @@
     "build-storybook": "storybook build"
   },
   "dependencies": {
+    "-": "^0.0.1",
+    "D": "^1.0.0",
     "axios": "^1.4.0",
     "konva": "^9.2.0",
     "react": "^18.2.0",
@@ -42,6 +44,7 @@
     "path": "^0.12.7",
     "storybook": "^7.2.1",
     "typescript": "^5.0.2",
-    "vite": "^4.4.5"
+    "vite": "^4.4.5",
+    "vite-plugin-svgr": "^3.2.0"
   }
 }
