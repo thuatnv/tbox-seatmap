@@ -129,7 +129,7 @@ const SeatMap: React.FC<Partial<SeatmapProps>> = ({
   const handleZoom = useCallback(
     (type: "out" | "in") => {
       const newScale = Math.abs(scale + scaleBy * (type === "out" ? -1 : 1));
-      if (newScale >= minScale - wheelVsBtnOffset && newScale <= maxScale) {
+      if (newScale >= minScale && newScale <= maxScale) {
         handleChainActions([
           () => setScale(scale + scaleBy * (type === "out" ? -1 : 1)),
           checkIfNeedReset,

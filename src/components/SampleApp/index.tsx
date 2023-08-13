@@ -5,7 +5,7 @@ import { Data } from "types/seatmap";
 
 const SampleApp = () => {
   const [data, error, loading] = useGetData<Data>(
-    `/v1/events/showings/20/seatmap`
+    `/v1/events/showings/22/seatmap`
   );
 
   if (loading) return <div className="dark-wrap">Loading seat map data...</div>;
