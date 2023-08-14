@@ -256,6 +256,9 @@ const SeatMapComponent: React.FC<Partial<SeatmapProps>> = ({
             onWheelStage(e);
             checkIfNeedReset();
           }}
+          onDragEnd={() => {
+            checkIfNeedReset();
+          }}
         >
           <Layer
             id="seatmap-layer"
