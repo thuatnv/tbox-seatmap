@@ -33,7 +33,7 @@ const GlobalStyles = createGlobalStyle`
   }
 
   .App {
-    flex-direction: column;
+    /* flex-direction: column; */
     gap: 1rem;
   }
 

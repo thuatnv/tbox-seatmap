@@ -1,15 +1,13 @@
 import { useCallback, useEffect, useRef, useState } from "react";
-import { Group, Layer, Path, Stage, Transformer } from "react-konva";
+import { Group, Layer, Path, Stage } from "react-konva";
+import { v4 as uuidv4 } from "uuid";
 
 import { Group as GroupType } from "konva/lib/Group";
 import { Layer as LayerType } from "konva/lib/Layer";
 import { KonvaEventObject } from "konva/lib/Node";
 import { Stage as StageType } from "konva/lib/Stage";
-import { Path as PathType } from "konva/lib/shapes/Path";
-import { Rect as RectType } from "konva/lib/shapes/Rect";
-import { Transformer as TransformerType } from "konva/lib/shapes/Transformer";
 import { IRect } from "konva/lib/types";
-import { Result } from "types/seatmap";
+import { Result, Section } from "types/seatmap";
 
 import { ReactComponent as MinusIcon } from "resources/svg/icon-minus-green.svg";
 import { ReactComponent as PlusIcon } from "resources/svg/icon-plus-green.svg";
@@ -17,19 +15,19 @@ import { ReactComponent as ResetIcon } from "resources/svg/icon-reset-green.svg"
 
 import Button from "components/Button";
 import { extractWHFromViewBox } from "utils";
-import { maxScale, minScale, scaleBy, wheelVsBtnOffset } from "./constants";
+import { maxScale, minScale, scaleBy } from "./constants";
 import { handleChainActions, handleOnWheel } from "./helpers";
 import { SeatmapWrapper } from "./style";
 
 type SeatmapProps = {
   data: Result;
-  loading: boolean;
   w: number;
   h: number;
   isWheelable: boolean;
   isDraggable: boolean;
+  isMinimap: boolean;
   hasTools: boolean;
-  mode: number;
+  chosenSectionId: number;
 };
 
 const SeatMap: React.FC<Partial<SeatmapProps>> = ({
@@ -38,7 +36,9 @@ const SeatMap: React.FC<Partial<SeatmapProps>> = ({
   h = 0,
   isWheelable = false,
   isDraggable = false,
+  isMinimap = false,
   hasTools = false,
+  chosenSectionId = 0,
 }) => {
   // states
   const [groupDimensions, setGroupDimensions] = useState<Partial<IRect>>({});
@@ -55,8 +55,6 @@ const SeatMap: React.FC<Partial<SeatmapProps>> = ({
   const stageRef = useRef<StageType>(null);
   const layerRef = useRef<LayerType>(null);
   const groupRef = useRef<GroupType>(null);
-  const tfmRef = useRef<TransformerType>(null);
-  const sectionGroupRefs = useRef<(PathType | RectType)[]>([]);
 
   // methods
   const handleBackToInitState = useCallback(() => {
@@ -149,16 +147,20 @@ const SeatMap: React.FC<Partial<SeatmapProps>> = ({
       () => setScale(layerRef?.current?.scaleX() as number),
     ]);
   };
-  const onClickStage = (e: KonvaEventObject<MouseEvent>) => {
-    if (e.target === stageRef.current) tfmRef?.current?.nodes([]);
-  };
-  const onMouseEnter = (e: KonvaEventObject<MouseEvent>) => {
+  const onSectionMouseEnter = (e: KonvaEventObject<MouseEvent>) => {
+    if (isMinimap) return;
     const container = e.target?.getStage()?.container();
     if (container) container.style.cursor = "pointer";
   };
-  const onMouseLeave = (e: KonvaEventObject<MouseEvent>) => {
+  const onSectionMouseLeave = (e: KonvaEventObject<MouseEvent>) => {
+    if (isMinimap) return;
     const container = e.target?.getStage()?.container();
     if (container) container.style.cursor = "";
+  };
+  const onSectionClick = (section: Section) => {
+    if (isMinimap) return;
+    const { id, name } = section;
+    console.log({ id, name });
   };
 
   // effects
@@ -190,10 +192,14 @@ const SeatMap: React.FC<Partial<SeatmapProps>> = ({
     const hasGroupCenter = groupCenter && Object.keys(groupCenter).length;
     if (hasStageCenter && hasGroupCenter) handleReset();
   }, [stageCenter, groupCenter, handleReset]);
+  useEffect(() => {
+    console.log({ chosenSectionId });
+  }, [chosenSectionId]);
 
   return (
     <SeatmapWrapper>
       <div id="stage-container">
+        {/* BUTTONS */}
         {hasTools && (
           <div id="btns-container">
             <Button onClick={() => handleZoom("in")}>
@@ -207,6 +213,8 @@ const SeatMap: React.FC<Partial<SeatmapProps>> = ({
             </Button>
           </div>
         )}
+
+        {/* MAIN STAGE */}
         <Stage
           id="seatmap-stage"
           width={w}
@@ -216,7 +224,6 @@ const SeatMap: React.FC<Partial<SeatmapProps>> = ({
             onWheelStage(e);
             checkIfNeedReset();
           }}
-          onClick={onClickStage}
         >
           <Layer
             id="seatmap-layer"
@@ -233,25 +240,40 @@ const SeatMap: React.FC<Partial<SeatmapProps>> = ({
               height={groupDimensions?.height}
             >
               {data?.sections?.map((section) => {
-                return section?.elements?.map(({ data, fill }, idx) => {
-                  const commonProps = {
-                    opacity: isResetDone ? 1 : 0,
-                    onMouseEnter: section?.isStage ? () => {} : onMouseEnter,
-                    onMouseLeave: section?.isStage ? () => {} : onMouseLeave,
+                const { isStage, elements } = section;
+                return elements?.map(({ data, fill, display }) => {
+                  if (isMinimap && display) return <></>;
+                  const sectionEventsProps = {
+                    onMouseEnter: onSectionMouseEnter,
+                    onMouseLeave: onSectionMouseLeave,
+                    onClick: () => onSectionClick(section),
                   };
-                  return (
+                  return isStage ? (
                     <Path
-                      key={`section-path-${idx}-${data}`}
-                      ref={(node) => {
-                        if (node) sectionGroupRefs.current[idx] = node;
+                      key={`${uuidv4()}`}
+                      {...{
+                        opacity: isResetDone ? 1 : 0,
+                        fill: fill || "#000",
+                        data,
                       }}
-                      {...commonProps}
-                      {...{ data, fill: fill || "#000" }}
+                    />
+                  ) : (
+                    <Path
+                      key={`${uuidv4()}`}
+                      {...{
+                        opacity: isResetDone ? 1 : 0,
+                        fill: isMinimap
+                          ? chosenSectionId === section.id
+                            ? fill
+                            : "#d3d3d3"
+                          : fill || "#000",
+                        data,
+                      }}
+                      {...sectionEventsProps}
                     />
                   );
                 });
               })}
-              <Transformer ref={tfmRef} />
             </Group>
           </Layer>
         </Stage>
