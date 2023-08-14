@@ -54,9 +54,47 @@ const SeatMap: React.FC<Partial<SeatmapProps>> = ({
   // refs
   const stageRef = useRef<StageType>(null);
   const layerRef = useRef<LayerType>(null);
+  const layerRef2 = useRef<LayerType>(null);
   const groupRef = useRef<GroupType>(null);
+  const chosenGroupRef = useRef<GroupType>(null);
 
   // methods
+  const handleCenterChosenSection = useCallback(() => {
+    if (isMinimap) return;
+    const stage = stageRef.current;
+    const group = chosenGroupRef.current;
+    if (stage && group) {
+      const boundingBox = group.getClientRect();
+      const centerX = boundingBox.x + boundingBox.width / 2;
+      const centerY = boundingBox.y + boundingBox.height / 2;
+
+      if (stageCenter && Object.keys(stageCenter).length) {
+        // const circle = new Konva.Circle({
+        //   x: stageCenter.x,
+        //   y: stageCenter.y,
+        //   radius: 5,
+        //   fill: "cyan",
+        // });
+        // const circle2 = new Konva.Circle({
+        //   x: centerX,
+        //   y: centerY,
+        //   radius: 5,
+        //   fill: "lime",
+        // });
+        // layerRef2.current.add(circle);
+        // layerRef2.current.add(circle2);
+        if (
+          (stageCenter.x as number) - centerX ||
+          (stageCenter.y as number) - centerY
+        ) {
+          stageRef.current.position({
+            x: (stageCenter.x as number) - centerX,
+            y: (stageCenter.y as number) - centerY,
+          });
+        }
+      }
+    }
+  }, [isMinimap, stageCenter]);
   const handleBackToInitState = useCallback(() => {
     const stage = stageRef.current;
     const layer = layerRef.current;
@@ -99,7 +137,7 @@ const SeatMap: React.FC<Partial<SeatmapProps>> = ({
         handleBackToInitState,
         () => setResetDone(true),
       ],
-      150
+      400
     );
   }, [handleBackToInitState]);
   const checkIfNeedReset = useCallback(() => {
@@ -136,12 +174,10 @@ const SeatMap: React.FC<Partial<SeatmapProps>> = ({
     },
     [scale, checkIfNeedReset]
   );
-  // TODO: handleOnSectionClicked
 
   // event handlers
   const onWheelStage = (e: KonvaEventObject<WheelEvent>) => {
     if (!isWheelable) return;
-    handleOnWheel(e, stageRef, layerRef);
     handleChainActions([
       () => handleOnWheel(e, stageRef, layerRef),
       () => setScale(layerRef?.current?.scaleX() as number),
@@ -159,8 +195,8 @@ const SeatMap: React.FC<Partial<SeatmapProps>> = ({
   };
   const onSectionClick = (section: Section) => {
     if (isMinimap) return;
-    const { id, name } = section;
-    console.log({ id, name });
+    // const { id, name } = section;
+    console.log({ section });
   };
 
   // effects
@@ -193,8 +229,8 @@ const SeatMap: React.FC<Partial<SeatmapProps>> = ({
     if (hasStageCenter && hasGroupCenter) handleReset();
   }, [stageCenter, groupCenter, handleReset]);
   useEffect(() => {
-    console.log({ chosenSectionId });
-  }, [chosenSectionId]);
+    if (isResetDone && chosenSectionId !== 0) handleCenterChosenSection();
+  }, [chosenSectionId, handleCenterChosenSection, isResetDone]);
 
   return (
     <SeatmapWrapper>
@@ -224,6 +260,9 @@ const SeatMap: React.FC<Partial<SeatmapProps>> = ({
             onWheelStage(e);
             checkIfNeedReset();
           }}
+          onClick={() => {
+            handleCenterChosenSection();
+          }}
         >
           <Layer
             id="seatmap-layer"
@@ -240,42 +279,60 @@ const SeatMap: React.FC<Partial<SeatmapProps>> = ({
               height={groupDimensions?.height}
             >
               {data?.sections?.map((section) => {
-                const { isStage, elements } = section;
-                return elements?.map(({ data, fill, display }) => {
-                  if (isMinimap && display) return <></>;
-                  const sectionEventsProps = {
-                    onMouseEnter: onSectionMouseEnter,
-                    onMouseLeave: onSectionMouseLeave,
-                    onClick: () => onSectionClick(section),
-                  };
-                  return isStage ? (
-                    <Path
-                      key={`${uuidv4()}`}
-                      {...{
-                        opacity: isResetDone ? 1 : 0,
-                        fill: fill || "#000",
-                        data,
-                      }}
-                    />
-                  ) : (
-                    <Path
-                      key={`${uuidv4()}`}
-                      {...{
-                        opacity: isResetDone ? 1 : 0,
-                        fill: isMinimap
-                          ? chosenSectionId === section.id
-                            ? fill
-                            : "#d3d3d3"
-                          : fill || "#000",
-                        data,
-                      }}
-                      {...sectionEventsProps}
-                    />
-                  );
-                });
+                const { isStage, elements, id, attribute } = section;
+                const hideSection =
+                  !isMinimap && chosenSectionId !== 0 && id !== chosenSectionId;
+
+                if (hideSection) return <></>;
+                return (
+                  <Group
+                    key={id}
+                    ref={id === chosenSectionId ? chosenGroupRef : null}
+                    width={attribute?.width}
+                    height={attribute?.height}
+                  >
+                    {elements?.map(({ data, fill, display }, idx) => {
+                      const hidePath =
+                        (isMinimap && display === 1) ||
+                        (!isMinimap && idx > 0 && chosenSectionId !== 0);
+                      if (hidePath) return <></>;
+
+                      const sectionEventsProps = {
+                        onMouseEnter: onSectionMouseEnter,
+                        onMouseLeave: onSectionMouseLeave,
+                        onClick: () => onSectionClick(section),
+                      };
+                      return isStage ? (
+                        <Path
+                          key={`${uuidv4()}`}
+                          {...{
+                            opacity: isResetDone ? 1 : 0,
+                            fill: fill || "#000",
+                            data,
+                          }}
+                        />
+                      ) : (
+                        <Path
+                          key={`${uuidv4()}`}
+                          {...{
+                            opacity: isResetDone ? 1 : 0,
+                            fill: isMinimap
+                              ? chosenSectionId === section.id
+                                ? fill
+                                : "#d3d3d3"
+                              : fill || "#fff",
+                            data,
+                          }}
+                          {...(chosenSectionId === 0 ? sectionEventsProps : {})}
+                        />
+                      );
+                    })}
+                  </Group>
+                );
               })}
             </Group>
           </Layer>
+          <Layer id="test-layer" ref={layerRef2}></Layer>
         </Stage>
       </div>
     </SeatmapWrapper>

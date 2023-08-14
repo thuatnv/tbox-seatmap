@@ -13,12 +13,13 @@ const SampleApp = () => {
     <div className="App dark-wrap">
       {data && (
         <SeatMap
-          w={initStageW}
-          h={initStageH}
+          w={750 || initStageW}
+          h={750 || initStageH}
           data={data?.result}
           isDraggable
           isWheelable
           hasTools
+          chosenSectionId={435}
         />
       )}
       {data && (
@@ -27,7 +28,7 @@ const SampleApp = () => {
           h={200}
           data={data?.result}
           isMinimap
-          chosenSectionId={436}
+          chosenSectionId={435}
         />
       )}
     </div>
