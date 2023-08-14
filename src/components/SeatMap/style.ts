@@ -5,6 +5,8 @@ type SeatmapWrapperProps = object;
 
 export const SeatmapWrapper = styled.div<SeatmapWrapperProps>`
   /* background-color: #000; */
+  /* border: 1px solid #2dc275; */
+  /* border-radius: 0.25rem; */
 
   #stage-container {
     /* background-color: cyan; */
@@ -12,7 +14,7 @@ export const SeatmapWrapper = styled.div<SeatmapWrapperProps>`
     border-radius: 0.25rem;
 
     /* border-top: 3px solid; */
-    border-bottom: 3px solid;
+    /* border-bottom: 3px solid;
     border-image-slice: 1;
     border-image-source: linear-gradient(
       90deg,
@@ -20,7 +22,7 @@ export const SeatmapWrapper = styled.div<SeatmapWrapperProps>`
       rgba(38, 163, 98, 1) 25%,
       rgba(45, 194, 117, 1) 75%,
       rgba(0, 0, 0, 0.95) 100%
-    );
+    ); */
 
     #btns-container {
       background-color: #00000060;

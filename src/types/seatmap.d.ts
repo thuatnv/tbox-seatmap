@@ -43,6 +43,7 @@ export interface Element {
   height: number;
   fill: string;
   data: string;
+  display: number;
 }
 
 export interface Attribute {
