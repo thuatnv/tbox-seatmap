@@ -1,28 +1,29 @@
-import React from "react";
+/* libraries */
+import React, { useCallback, useEffect, useRef, useState } from "react";
 import { Group, Layer, Path, Stage } from "react-konva";
 import { v4 as uuidv4 } from "uuid";
-
+/* types */
 import { Group as GroupType } from "konva/lib/Group";
 import { Layer as LayerType } from "konva/lib/Layer";
 import { KonvaEventObject } from "konva/lib/Node";
 import { Stage as StageType } from "konva/lib/Stage";
 import { IRect } from "konva/lib/types";
 import { Result, Section } from "types/seatmap";
-
+/* icons */
 import { ReactComponent as MinusIcon } from "resources/svg/icon-minus-green.svg";
 import { ReactComponent as PlusIcon } from "resources/svg/icon-plus-green.svg";
 import { ReactComponent as ResetIcon } from "resources/svg/icon-reset-green.svg";
-
+/* manual */
 import Button from "components/Button";
 import { extractWHFromViewBox } from "utils";
 import { maxScale, minScale, scaleBy } from "./constants";
-import { handleChainActions, handleOnWheel } from "./helpers";
+import { handleChainActions, handleOnWheel, handleResetRefs } from "./helpers";
 import { SeatmapWrapper } from "./style";
 
 type SeatmapProps = {
-  data: Result;
   w: number;
   h: number;
+  data: Result;
   isWheelable: boolean;
   isDraggable: boolean;
   isMinimap: boolean;
@@ -31,9 +32,9 @@ type SeatmapProps = {
 };
 
 const SeatMapComponent: React.FC<Partial<SeatmapProps>> = ({
-  data = undefined,
   w = 0,
   h = 0,
+  data = undefined,
   isWheelable = false,
   isDraggable = false,
   isMinimap = false,
@@ -53,7 +54,6 @@ const SeatMapComponent: React.FC<Partial<SeatmapProps>> = ({
   // refs
   const stageRef = useRef<StageType>(null);
   const layerRef = useRef<LayerType>(null);
-  const layerRef2 = useRef<LayerType>(null);
   const groupRef = useRef<GroupType>(null);
   const chosenGroupRef = useRef<GroupType>(null);
 
@@ -61,34 +61,30 @@ const SeatMapComponent: React.FC<Partial<SeatmapProps>> = ({
   const handleCenterChosenSection = useCallback(() => {
     if (isMinimap) return;
     const stage = stageRef.current;
-    const group = chosenGroupRef.current;
-    if (stage && group) {
-      const boundingBox = group.getClientRect();
+    const layer = layerRef.current;
+    const chosenGroup = chosenGroupRef.current;
+
+    if (stage && layer && chosenGroup) {
+      const scaleX = Math.abs(stage.width() / chosenGroup.width());
+      const scaleY = Math.abs(stage.height() / chosenGroup.height());
+      const scale = Math.min(scaleX, scaleY);
+      layer.scale({
+        x: scale,
+        y: scale,
+      });
+      setScale(scale);
+
+      const boundingBox = chosenGroup.getClientRect();
       const centerX = boundingBox.x + boundingBox.width / 2;
       const centerY = boundingBox.y + boundingBox.height / 2;
-
       if (stageCenter && Object.keys(stageCenter).length) {
-        // const circle = new Konva.Circle({
-        //   x: stageCenter.x,
-        //   y: stageCenter.y,
-        //   radius: 5,
-        //   fill: "cyan",
-        // });
-        // const circle2 = new Konva.Circle({
-        //   x: centerX,
-        //   y: centerY,
-        //   radius: 5,
-        //   fill: "lime",
-        // });
-        // layerRef2.current.add(circle);
-        // layerRef2.current.add(circle2);
-        if (
-          (stageCenter.x as number) - centerX ||
-          (stageCenter.y as number) - centerY
-        ) {
-          stageRef.current.position({
-            x: (stageCenter.x as number) - centerX,
-            y: (stageCenter.y as number) - centerY,
+        const offsetX = (stageCenter.x as number) - centerX;
+        const offsetY = (stageCenter.y as number) - centerY;
+        const isDiffFromCenter = offsetX || offsetY;
+        if (isDiffFromCenter) {
+          stage.position({
+            x: offsetX,
+            y: offsetY,
           });
         }
       }
@@ -98,57 +94,54 @@ const SeatMapComponent: React.FC<Partial<SeatmapProps>> = ({
     const stage = stageRef.current;
     const layer = layerRef.current;
     const group = groupRef.current;
-    if (layer && group) {
-      if (stage) {
-        const scaleX = stage.width() / group.width();
-        const scaleY = stage.height() / group.height();
-        const scale = Math.min(scaleX, scaleY);
-        layer.scale({ x: scale, y: scale });
-        setScale(scale);
 
-        const stageCenterX = stage.width() / 2;
-        const stageCenterY = stage.height() / 2;
-        const groupCenterX = (group.width() * scale) / 2;
-        const groupCenterY = (group.height() * scale) / 2;
-        const offsetX = stageCenterX - groupCenterX;
-        const offsetY = stageCenterY - groupCenterY;
-        layer.to({
+    if (stage && layer && group) {
+      handleResetRefs(stageRef);
+
+      const scaleX = stage.width() / group.width();
+      const scaleY = stage.height() / group.height();
+      const scale = Math.min(scaleX, scaleY);
+      layer.scale({ x: scale, y: scale });
+      setScale(scale);
+
+      const stageCenterX = stage.width() / 2;
+      const stageCenterY = stage.height() / 2;
+      const groupCenterX = (group.width() * scale) / 2;
+      const groupCenterY = (group.height() * scale) / 2;
+      const offsetX = stageCenterX - groupCenterX;
+      const offsetY = stageCenterY - groupCenterY;
+      layer.to({
+        x: offsetX,
+        y: offsetY,
+        duration: 0.1,
+      });
+      setResetValuesTracker({
+        scale: { x: scale, y: scale },
+        position: {
           x: offsetX,
           y: offsetY,
-          duration: 0.1,
-        });
-        setResetValuesTracker({
-          scale: { x: scale, y: scale },
-          position: {
-            x: offsetX,
-            y: offsetY,
-          },
-        });
-        setShouldReset(false);
-      }
+        },
+      });
+      setShouldReset(false);
     }
   }, []);
   const handleReset = React.useCallback(() => {
     handleChainActions(
       [
-        // () => console.log("Reset clicked"),
         () => setResetDone(false),
         handleBackToInitState,
         () => setResetDone(true),
       ],
-      400
+      300
     );
   }, [handleBackToInitState]);
 
   const checkIfNeedReset = React.useCallback(() => {
     const stage = stageRef.current;
-    const layer = layerRef.current;
-    const group = groupRef.current;
-
-    if (stage && layer && group) {
-      const currentScale = layer.scaleX();
-      const currentX = layer.x();
-      const currentY = layer.y();
+    if (stage) {
+      const currentScale = stage.scaleX();
+      const currentX = stage.x();
+      const currentY = stage.y();
 
       if (resetValuesTracker && Object.keys(resetValuesTracker).length) {
         const resetScale = resetValuesTracker.scale.x as number;
@@ -166,6 +159,7 @@ const SeatMapComponent: React.FC<Partial<SeatmapProps>> = ({
   const handleZoom =React.useCallback(
     (type: "out" | "in") => {
       const newScale = Math.abs(scale + scaleBy * (type === "out" ? -1 : 1));
+
       if (newScale >= minScale && newScale <= maxScale) {
         handleChainActions([
           () => setScale(scale + scaleBy * (type === "out" ? -1 : 1)),
@@ -180,7 +174,7 @@ const SeatMapComponent: React.FC<Partial<SeatmapProps>> = ({
   const onWheelStage = (e: KonvaEventObject<WheelEvent>) => {
     if (!isWheelable) return;
     handleChainActions([
-      () => handleOnWheel(e, stageRef, layerRef),
+      () => handleOnWheel(e, stageRef),
       () => setScale(layerRef?.current?.scaleX() as number),
     ]);
   };
@@ -196,7 +190,6 @@ const SeatMapComponent: React.FC<Partial<SeatmapProps>> = ({
   };
   const onSectionClick = (section: Section) => {
     if (isMinimap) return;
-    // const { id, name } = section;
     console.log({ section });
   };
 
@@ -257,18 +250,17 @@ const SeatMapComponent: React.FC<Partial<SeatmapProps>> = ({
           width={w}
           height={h}
           ref={stageRef}
+          draggable={isDraggable}
           onWheel={(e) => {
+            if (!isResetDone) return;
             onWheelStage(e);
             checkIfNeedReset();
-          }}
-          onClick={() => {
-            handleCenterChosenSection();
           }}
         >
           <Layer
             id="seatmap-layer"
             ref={layerRef}
-            scale={{ x: scale, y: scale }} // Add this line
+            scale={{ x: scale, y: scale }}
             draggable={isDraggable}
             onDragEnd={() => {
               checkIfNeedReset();
@@ -333,7 +325,6 @@ const SeatMapComponent: React.FC<Partial<SeatmapProps>> = ({
               })}
             </Group>
           </Layer>
-          <Layer id="test-layer" ref={layerRef2}></Layer>
         </Stage>
       </div>
     </SeatmapWrapper>
