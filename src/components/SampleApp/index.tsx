@@ -9,17 +9,18 @@ const SampleApp = () => {
   );
   if (loading) return <div className="dark-wrap">Loading seat map data...</div>;
   if (error) return <div className="dark-wrap">Opps! Error: {`${error}`}</div>;
+  const chosenId = 436;
   return (
     <div className="App dark-wrap">
       {data && (
         <SeatMap
-          w={750 || initStageW}
-          h={750 || initStageH}
+          w={700 || initStageW}
+          h={700 || initStageH}
           data={data?.result}
           isDraggable
           isWheelable
           hasTools
-          chosenSectionId={435}
+          chosenSectionId={chosenId}
         />
       )}
       {data && (
@@ -28,7 +29,7 @@ const SampleApp = () => {
           h={200}
           data={data?.result}
           isMinimap
-          chosenSectionId={435}
+          chosenSectionId={chosenId}
         />
       )}
     </div>
