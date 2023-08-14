@@ -5,8 +5,8 @@ type SeatmapWrapperProps = object;
 
 export const SeatmapWrapper = styled.div<SeatmapWrapperProps>`
   /* background-color: #000; */
-  /* border: 1px solid #2dc275; */
-  /* border-radius: 0.25rem; */
+  border: 1px solid #2dc275;
+  border-radius: 0.25rem;
 
   #stage-container {
     /* background-color: cyan; */

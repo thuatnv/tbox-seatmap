@@ -13,17 +13,16 @@ const SampleApp = (props: AppProps) => {
   // if (error) return <div className="dark-wrap">Opps! Error: {`${error}`}</div>;
   return (
     <div className="App dark-wrap">
-      {dataMap && (
+      {data && (
         <SeatMapComponent
-          w={initStageW}
-          h={initStageH}
-          data={dataMap?.result}
+          w={750 || initStageW}
+          h={750 || initStageH}
+          data={data?.result}
           isDraggable
           isWheelable
           hasTools
-          isMinimap={false}
-          chosenSectionId={0}
-          />
+          chosenSectionId={435}
+        />
       )}
       {dataMap && (
         <SeatMapComponent
@@ -31,11 +30,8 @@ const SampleApp = (props: AppProps) => {
           h={200}
           data={dataMap?.result}
           isMinimap
-          chosenSectionId={436}
-          isWheelable={false}
-          isDraggable={false}
-          hasTools={false}
-          />
+          chosenSectionId={435}
+        />
       )}
     </div>
   );
