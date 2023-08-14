@@ -31,6 +31,8 @@ type SeatmapProps = {
   chosenSectionId: number;
 };
 
+type ResetTrackingState = Record<string, Partial<IRect>>;
+
 const SeatMapComponent: React.FC<Partial<SeatmapProps>> = ({
   w = 0,
   h = 0,
@@ -43,13 +45,13 @@ const SeatMapComponent: React.FC<Partial<SeatmapProps>> = ({
 }) => {
   console.log(data, isMinimap);
   // states
-  const [groupDimensions, setGroupDimensions] = React.useState<any>({});
-  const [stageCenter, setStageCenter] = React.useState({});
-  const [groupCenter, setGroupCenter] = React.useState({});
-  const [isResetDone, setResetDone] = React.useState(false);
-  const [resetValuesTracker, setResetValuesTracker] = React.useState<any>({});
-  const [shouldReset, setShouldReset] = React.useState(false);
-  const [scale, setScale] = React.useState(0);
+  const [groupDimensions, setGroupDimensions] = useState<Partial<IRect>>({});
+  const [stageCenter, setStageCenter] = useState<Partial<IRect>>({});
+  const [groupCenter, setGroupCenter] = useState<Partial<IRect>>({});
+  const [isResetDone, setResetDone] = useState<boolean>(false);
+  const [resetTrackings, setResetTrackings] = useState<ResetTrackingState>({});
+  const [shouldReset, setShouldReset] = useState<boolean>(false);
+  const [scale, setScale] = useState<number>(0);
 
   // refs
   const stageRef = useRef<StageType>(null);
@@ -115,7 +117,7 @@ const SeatMapComponent: React.FC<Partial<SeatmapProps>> = ({
         y: offsetY,
         duration: 0.1,
       });
-      setResetValuesTracker({
+      setResetTrackings({
         scale: { x: scale, y: scale },
         position: {
           x: offsetX,
@@ -143,10 +145,10 @@ const SeatMapComponent: React.FC<Partial<SeatmapProps>> = ({
       const currentX = stage.x();
       const currentY = stage.y();
 
-      if (resetValuesTracker && Object.keys(resetValuesTracker).length) {
-        const resetScale = resetValuesTracker.scale.x as number;
-        const resetX = resetValuesTracker.position.x as number;
-        const resetY = resetValuesTracker.position.y as number;
+      if (resetTrackings && Object.keys(resetTrackings).length) {
+        const resetScale = resetTrackings.scale.x as number;
+        const resetX = resetTrackings.position.x as number;
+        const resetY = resetTrackings.position.y as number;
         const isScaleReset = Math.abs(currentScale - resetScale) > 0.001;
         const isPositionReset =
           Math.abs(currentX - resetX) > 0.001 ||
@@ -154,9 +156,8 @@ const SeatMapComponent: React.FC<Partial<SeatmapProps>> = ({
         setShouldReset(isScaleReset || isPositionReset);
       }
     }
-  }, [resetValuesTracker]);
-
-  const handleZoom =React.useCallback(
+  }, [resetTrackings]);
+  const handleZoom = useCallback(
     (type: "out" | "in") => {
       const newScale = Math.abs(scale + scaleBy * (type === "out" ? -1 : 1));
 
