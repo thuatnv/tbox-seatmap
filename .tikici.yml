@@ -4,11 +4,18 @@ config:
   slack_channel: ticketbox-circleci
 environment:
   BUILD_IMAGE: 'maven:3.6-jdk-11'
+  
+credentials:
+  text:
+    - GITHUB_PERSONAL_ACCESS_TOKEN
+    - NPM_LOCAL_REGISTRY_ACCESS_TOKEN
+    
 jobs:
   build_docker:
     steps:
       - build_image:
           dockerfile: Dockerfile
+          build_args: '--build-arg NPM_TOKEN=${NPM_LOCAL_REGISTRY_ACCESS_TOKEN} --build-arg GITHUB_TOKEN=${GITHUB_PERSONAL_ACCESS_TOKEN}'
           buildkit: true
   publish_docker:
     steps:
