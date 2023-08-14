@@ -31,6 +31,8 @@ type SeatmapProps = {
   chosenSectionId: number;
 };
 
+type ResetTrackingState = Record<string, Partial<IRect>>;
+
 const SeatMap: React.FC<Partial<SeatmapProps>> = ({
   w = 0,
   h = 0,
@@ -46,9 +48,7 @@ const SeatMap: React.FC<Partial<SeatmapProps>> = ({
   const [stageCenter, setStageCenter] = useState<Partial<IRect>>({});
   const [groupCenter, setGroupCenter] = useState<Partial<IRect>>({});
   const [isResetDone, setResetDone] = useState<boolean>(false);
-  const [resetValuesTracker, setResetValuesTracker] = useState<
-    Record<string, Partial<IRect>>
-  >({});
+  const [resetTrackings, setResetTrackings] = useState<ResetTrackingState>({});
   const [shouldReset, setShouldReset] = useState<boolean>(false);
   const [scale, setScale] = useState<number>(0);
 
@@ -116,7 +116,7 @@ const SeatMap: React.FC<Partial<SeatmapProps>> = ({
         y: offsetY,
         duration: 0.1,
       });
-      setResetValuesTracker({
+      setResetTrackings({
         scale: { x: scale, y: scale },
         position: {
           x: offsetX,
@@ -143,10 +143,10 @@ const SeatMap: React.FC<Partial<SeatmapProps>> = ({
       const currentX = stage.x();
       const currentY = stage.y();
 
-      if (resetValuesTracker && Object.keys(resetValuesTracker).length) {
-        const resetScale = resetValuesTracker.scale.x as number;
-        const resetX = resetValuesTracker.position.x as number;
-        const resetY = resetValuesTracker.position.y as number;
+      if (resetTrackings && Object.keys(resetTrackings).length) {
+        const resetScale = resetTrackings.scale.x as number;
+        const resetX = resetTrackings.position.x as number;
+        const resetY = resetTrackings.position.y as number;
         const isScaleReset = Math.abs(currentScale - resetScale) > 0.001;
         const isPositionReset =
           Math.abs(currentX - resetX) > 0.001 ||
@@ -154,7 +154,7 @@ const SeatMap: React.FC<Partial<SeatmapProps>> = ({
         setShouldReset(isScaleReset || isPositionReset);
       }
     }
-  }, [resetValuesTracker]);
+  }, [resetTrackings]);
   const handleZoom = useCallback(
     (type: "out" | "in") => {
       const newScale = Math.abs(scale + scaleBy * (type === "out" ? -1 : 1));
