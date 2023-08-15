@@ -1,10 +1,21 @@
 import { KonvaEventObject } from "konva/lib/Node";
-import { Circle as CircleType } from "konva/lib/shapes/Circle";
-import { useRef, useState } from "react";
+import { useState } from "react";
 import { Circle } from "react-konva";
 import { getSeatStyles, seatStatusNumToStr } from "./helpers";
 
-const Seat = ({
+type SeatProps = {
+  id: string;
+  name: string;
+  visible: boolean;
+  x: number;
+  y: number;
+  radius: number;
+  strokeWidth: number;
+  initStatus: number;
+  onClick?: () => void;
+};
+
+const Seat: React.FC<Partial<SeatProps>> = ({
   id = "",
   name = "",
   visible = true,
@@ -17,9 +28,6 @@ const Seat = ({
 }) => {
   // states
   const [currentStatus, setCurrentStatus] = useState<number>(initStatus);
-
-  // refs
-  const seatRef = useRef<CircleType>(null);
 
   // methods
   const onSeatMouseEnter = (e: KonvaEventObject<MouseEvent>) => {
@@ -40,7 +48,6 @@ const Seat = ({
   // render
   return (
     <Circle
-      ref={seatRef}
       onMouseEnter={onSeatMouseEnter}
       onMouseLeave={onSeatMouseLeave}
       onClick={() => {
