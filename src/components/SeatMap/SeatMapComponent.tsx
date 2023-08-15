@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef, useState } from "react";
+import React from "react";
 import { Group, Layer, Path, Stage } from "react-konva";
 import { v4 as uuidv4 } from "uuid";
 
@@ -30,7 +30,7 @@ type SeatmapProps = {
   chosenSectionId: number;
 };
 
-const SeatMap: React.FC<Partial<SeatmapProps>> = ({
+const SeatMapComponent: React.FC<Partial<SeatmapProps>> = ({
   data = undefined,
   w = 0,
   h = 0,
@@ -40,24 +40,23 @@ const SeatMap: React.FC<Partial<SeatmapProps>> = ({
   hasTools = false,
   chosenSectionId = 0,
 }) => {
+  console.log(data, isMinimap);
   // states
-  const [groupDimensions, setGroupDimensions] = useState<Partial<IRect>>({});
-  const [stageCenter, setStageCenter] = useState<Partial<IRect>>({});
-  const [groupCenter, setGroupCenter] = useState<Partial<IRect>>({});
-  const [isResetDone, setResetDone] = useState<boolean>(false);
-  const [resetValuesTracker, setResetValuesTracker] = useState<
-    Record<string, Partial<IRect>>
-  >({});
-  const [shouldReset, setShouldReset] = useState<boolean>(false);
-  const [scale, setScale] = useState<number>(0);
+  const [groupDimensions, setGroupDimensions] = React.useState<any>({});
+  const [stageCenter, setStageCenter] = React.useState({});
+  const [groupCenter, setGroupCenter] = React.useState({});
+  const [isResetDone, setResetDone] = React.useState(false);
+  const [resetValuesTracker, setResetValuesTracker] = React.useState<any>({});
+  const [shouldReset, setShouldReset] = React.useState(false);
+  const [scale, setScale] = React.useState(0);
 
   // refs
-  const stageRef = useRef<StageType>(null);
-  const layerRef = useRef<LayerType>(null);
-  const groupRef = useRef<GroupType>(null);
+  const stageRef = React.useRef<StageType>(null);
+  const layerRef = React.useRef<LayerType>(null);
+  const groupRef = React.useRef<GroupType>(null);
 
   // methods
-  const handleBackToInitState = useCallback(() => {
+  const handleBackToInitState = React.useCallback(() => {
     const stage = stageRef.current;
     const layer = layerRef.current;
     const group = groupRef.current;
@@ -91,7 +90,7 @@ const SeatMap: React.FC<Partial<SeatmapProps>> = ({
       }
     }
   }, []);
-  const handleReset = useCallback(() => {
+  const handleReset = React.useCallback(() => {
     handleChainActions(
       [
         // () => console.log("Reset clicked"),
@@ -102,7 +101,8 @@ const SeatMap: React.FC<Partial<SeatmapProps>> = ({
       150
     );
   }, [handleBackToInitState]);
-  const checkIfNeedReset = useCallback(() => {
+
+  const checkIfNeedReset = React.useCallback(() => {
     const stage = stageRef.current;
     const layer = layerRef.current;
     const group = groupRef.current;
@@ -124,7 +124,8 @@ const SeatMap: React.FC<Partial<SeatmapProps>> = ({
       }
     }
   }, [resetValuesTracker]);
-  const handleZoom = useCallback(
+
+  const handleZoom =React.useCallback(
     (type: "out" | "in") => {
       const newScale = Math.abs(scale + scaleBy * (type === "out" ? -1 : 1));
       if (newScale >= minScale && newScale <= maxScale) {
@@ -149,12 +150,12 @@ const SeatMap: React.FC<Partial<SeatmapProps>> = ({
   };
   const onSectionMouseEnter = (e: KonvaEventObject<MouseEvent>) => {
     if (isMinimap) return;
-    const container = e.target?.getStage()?.container();
+    const container: any = e.target?.getStage()?.container();
     if (container) container.style.cursor = "pointer";
   };
   const onSectionMouseLeave = (e: KonvaEventObject<MouseEvent>) => {
     if (isMinimap) return;
-    const container = e.target?.getStage()?.container();
+    const container: any = e.target?.getStage()?.container();
     if (container) container.style.cursor = "";
   };
   const onSectionClick = (section: Section) => {
@@ -164,7 +165,7 @@ const SeatMap: React.FC<Partial<SeatmapProps>> = ({
   };
 
   // effects
-  useEffect(() => {
+  React.useEffect(() => {
     if (data && data.viewbox) {
       const stage = stageRef.current;
       if (stage) {
@@ -176,7 +177,7 @@ const SeatMap: React.FC<Partial<SeatmapProps>> = ({
       }
     }
   }, [data]);
-  useEffect(() => {
+  React.useEffect(() => {
     if (groupDimensions && Object.keys(groupDimensions).length) {
       const group = groupRef.current;
       if (group) {
@@ -187,12 +188,12 @@ const SeatMap: React.FC<Partial<SeatmapProps>> = ({
       }
     }
   }, [groupDimensions]);
-  useEffect(() => {
+  React.useEffect(() => {
     const hasStageCenter = stageCenter && Object.keys(stageCenter).length;
     const hasGroupCenter = groupCenter && Object.keys(groupCenter).length;
     if (hasStageCenter && hasGroupCenter) handleReset();
   }, [stageCenter, groupCenter, handleReset]);
-  useEffect(() => {
+  React.useEffect(() => {
     console.log({ chosenSectionId });
   }, [chosenSectionId]);
 
@@ -282,4 +283,4 @@ const SeatMap: React.FC<Partial<SeatmapProps>> = ({
   );
 };
 
-export default SeatMap;
+export default SeatMapComponent;

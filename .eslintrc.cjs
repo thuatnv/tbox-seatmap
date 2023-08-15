@@ -10,9 +10,9 @@ module.exports = {
     "plugin:react-hooks/recommended",
     "plugin:storybook/recommended",
   ],
-  ignorePatterns: ["dist", ".eslintrc.cjs"],
+  ignorePatterns: ["dist", ".eslintrc.js"],
   parser: "@typescript-eslint/parser",
-  plugins: ["react-refresh"],
+  plugins: ["react-refresh", "react-hooks", "@typescript-eslint"],
   rules: {
     "@typescript-eslint/no-unused-vars": "warn",
     "react-refresh/only-export-components": [
@@ -21,5 +21,7 @@ module.exports = {
         allowConstantExport: true,
       },
     ],
+    "react-hooks/rules-of-hooks": "warn", // Checks rules of Hooks
+    "react-hooks/exhaustive-deps": "warn" // Checks effect dependencies
   },
 };

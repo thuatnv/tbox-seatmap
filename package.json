@@ -1,8 +1,10 @@
 {
-  "name": "tbox-seatmap",
-  "private": true,
+  "name": "@tikivn/tbox-seatmap",
   "version": "0.0.0",
   "type": "module",
+  "source": "src/index.ts",
+  "main": "dist/index.js",
+  "module": "dist/index.mjs",
   "scripts": {
     "dev": "vite",
     "build": "tsc && vite build",
@@ -35,7 +37,7 @@
     "@types/react": "^18.2.15",
     "@types/react-dom": "^18.2.7",
     "@types/uuid": "^9.0.2",
-    "@typescript-eslint/eslint-plugin": "^6.0.0",
+    "@typescript-eslint/eslint-plugin": "^6.3.0",
     "@typescript-eslint/parser": "^6.0.0",
     "@vitejs/plugin-react": "^4.0.3",
     "eslint": "^8.45.0",

@@ -1,37 +1,45 @@
-import SeatMap from "components/SeatMap";
+import SeatMapComponent from "components/SeatMap/SeatMapComponent";
 import { initStageH, initStageW } from "components/SeatMap/constants";
-import useGetData from "hooks/useGetData";
+// import useGetData from "hooks/useGetData";
 import { Data } from "types/seatmap";
-
-const SampleApp = () => {
-  const [data, error, loading] = useGetData<Data>(
-    `/v1/events/showings/22/seatmap`
-  );
-  if (loading) return <div className="dark-wrap">Loading seat map data...</div>;
-  if (error) return <div className="dark-wrap">Opps! Error: {`${error}`}</div>;
+interface AppProps {
+  dataMap?: Data
+}
+const SampleApp = (props: AppProps) => {
+  const { dataMap } = props;
+  //   `/v1/events/showings/22/seatmap`
+  // );
+  // if (loading) return <div className="dark-wrap">Loading seat map data...</div>;
+  // if (error) return <div className="dark-wrap">Opps! Error: {`${error}`}</div>;
   return (
     <div className="App dark-wrap">
-      {data && (
-        <SeatMap
+      {dataMap && (
+        <SeatMapComponent
           w={initStageW}
           h={initStageH}
-          data={data?.result}
+          data={dataMap?.result}
           isDraggable
           isWheelable
           hasTools
-        />
+          isMinimap={false}
+          chosenSectionId={0}
+          />
       )}
-      {data && (
-        <SeatMap
+      {dataMap && (
+        <SeatMapComponent
           w={200}
           h={200}
-          data={data?.result}
+          data={dataMap?.result}
           isMinimap
           chosenSectionId={436}
-        />
+          isWheelable={false}
+          isDraggable={false}
+          hasTools={false}
+          />
       )}
     </div>
   );
 };
 
 export default SampleApp;
+
