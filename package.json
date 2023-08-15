@@ -8,6 +8,7 @@
   "scripts": {
     "dev": "vite",
     "build": "tsc && vite build",
+    "buildLib": "tsc && vite build --config lib.config.ts",
     "lint": "eslint 'src/**/*.{jsx,ts,tsx}' --report-unused-disable-directives --max-warnings 0",
     "lint:fix": "eslint --fix 'src/**/*.{jsx,ts,tsx}'",
     "format": "prettier --write src//**/*.{ts,tsx,css} --config ./.prettierrc",
