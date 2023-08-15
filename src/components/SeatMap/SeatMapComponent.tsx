@@ -9,7 +9,7 @@ import { KonvaEventObject } from "konva/lib/Node";
 import { Stage as StageType } from "konva/lib/Stage";
 import { IRect } from "konva/lib/types";
 import { Result, Section } from "types/seatmap";
-import { Result as SectionResult } from "types/section";
+import { ClickedSeatsData, Result as SectionResult } from "types/section";
 /* icons */
 import { ReactComponent as MinusIcon } from "resources/svg/icon-minus-green.svg";
 import { ReactComponent as PlusIcon } from "resources/svg/icon-plus-green.svg";
@@ -35,16 +35,11 @@ type SeatmapProps = {
   chosenSectionId: number;
   chosenSectionData: SectionResult;
   onSectionClick: (arg0: Section) => void;
-  getSeatsData: (
-    arg0: Record<number, Record<string, string | number | boolean>>
-  ) => void;
+  getSeatsData: (arg0: ClickedSeatsData) => void;
 };
 type ResetTrackings = Record<string, Partial<IRect>>;
 
-let selectedSeats: Record<
-  number,
-  Record<string, string | number | boolean>
-> = {};
+let selectedSeats: ClickedSeatsData = {};
 
 const SeatMapComponent: React.FC<Partial<SeatmapProps>> = ({
   w = 0,
@@ -200,7 +195,6 @@ const SeatMapComponent: React.FC<Partial<SeatmapProps>> = ({
       delete selectedSeatsCopy[seatId];
       selectedSeats = { ...selectedSeatsCopy };
     }
-    // console.log({ selectedSeats }); // DEV ONLY
   };
 
   // event handlers
@@ -254,6 +248,9 @@ const SeatMapComponent: React.FC<Partial<SeatmapProps>> = ({
   useEffect(() => {
     if (isResetDone && chosenSectionId !== 0) handleInitChosenSection();
   }, [chosenSectionId, handleInitChosenSection, isResetDone]);
+  useEffect(() => {
+    if (chosenSectionId !== 0) selectedSeats = {};
+  }, [chosenSectionId]);
 
   // render
   return (

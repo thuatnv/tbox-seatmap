@@ -38,3 +38,8 @@ export interface Seat {
   x: number;
   y: number;
 }
+
+export type ClickedSeatsData = Record<
+  number,
+  Record<string, string | number | boolean>
+>;

@@ -2,10 +2,10 @@ import SeatMapComponent from "components/SeatMap/SeatMapComponent";
 import { initStageH, initStageW } from "components/SeatMap/constants";
 import useGetData from "hooks/useGetData";
 import { Data, Section } from "types/seatmap";
-import { Data as SectionData } from "types/section";
+import { ClickedSeatsData, Data as SectionData } from "types/section";
 
 const showingId = 23;
-const chosenId = 445;
+const chosenId = 447;
 const SampleApp = () => {
   const [data, error, loading] = useGetData<Data>(
     `/v1/events/showings/${showingId}/seatmap`
@@ -33,9 +33,7 @@ const SampleApp = () => {
           onSectionClick={(section: Section): void => {
             console.log({ section });
           }}
-          getSeatsData={(
-            data: Record<number, Record<string, string | number | boolean>>
-          ): void => {
+          getSeatsData={(data: ClickedSeatsData): void => {
             if (data && Object.keys(data).length) {
               console.log(data);
             }
