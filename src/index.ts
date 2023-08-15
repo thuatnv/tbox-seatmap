@@ -1,3 +1,3 @@
-export * from "konva";
-export * from 'react-konva';
-export * from "./SeatMap";
+// export * from 'konva';
+// export * from 'react-konva';
+export * from 'components/SeatMap';
