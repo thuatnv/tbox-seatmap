@@ -9,6 +9,7 @@ import { KonvaEventObject } from "konva/lib/Node";
 import { Stage as StageType } from "konva/lib/Stage";
 import { IRect } from "konva/lib/types";
 import { Result, Section } from "types/seatmap";
+import { Result as SectionResult } from "types/section";
 /* icons */
 import { ReactComponent as MinusIcon } from "resources/svg/icon-minus-green.svg";
 import { ReactComponent as PlusIcon } from "resources/svg/icon-plus-green.svg";
@@ -20,6 +21,7 @@ import { maxScale, minScale, scaleBy } from "./constants";
 import { handleChainActions, handleOnWheel, handleResetRefs } from "./helpers";
 import { SeatmapWrapper } from "./style";
 
+/* component types */
 type SeatmapProps = {
   w: number;
   h: number;
@@ -29,9 +31,9 @@ type SeatmapProps = {
   isMinimap: boolean;
   hasTools: boolean;
   chosenSectionId: number;
+  chosenSectionData: SectionResult;
 };
-
-type ResetTrackingState = Record<string, Partial<IRect>>;
+type ResetTrackings = Record<string, Partial<IRect>>;
 
 const SeatMapComponent: React.FC<Partial<SeatmapProps>> = ({
   w = 0,
@@ -42,6 +44,7 @@ const SeatMapComponent: React.FC<Partial<SeatmapProps>> = ({
   isMinimap = false,
   hasTools = false,
   chosenSectionId = 0,
+  chosenSectionData = undefined,
 }) => {
   console.log(data, isMinimap);
   // states
@@ -49,7 +52,7 @@ const SeatMapComponent: React.FC<Partial<SeatmapProps>> = ({
   const [stageCenter, setStageCenter] = useState<Partial<IRect>>({});
   const [groupCenter, setGroupCenter] = useState<Partial<IRect>>({});
   const [isResetDone, setResetDone] = useState<boolean>(false);
-  const [resetTrackings, setResetTrackings] = useState<ResetTrackingState>({});
+  const [resetTrackings, setResetTrackings] = useState<ResetTrackings>({});
   const [shouldReset, setShouldReset] = useState<boolean>(false);
   const [scale, setScale] = useState<number>(0);
 
@@ -60,7 +63,7 @@ const SeatMapComponent: React.FC<Partial<SeatmapProps>> = ({
   const chosenGroupRef = useRef<GroupType>(null);
 
   // methods
-  const handleCenterChosenSection = useCallback(() => {
+  const handleInitChosenSection = useCallback(() => {
     if (isMinimap) return;
     const stage = stageRef.current;
     const layer = layerRef.current;
@@ -172,7 +175,7 @@ const SeatMapComponent: React.FC<Partial<SeatmapProps>> = ({
   );
 
   // event handlers
-  const onWheelStage = (e: KonvaEventObject<WheelEvent>) => {
+  const onStageWheel = (e: KonvaEventObject<WheelEvent>) => {
     if (!isWheelable) return;
     handleChainActions([
       () => handleOnWheel(e, stageRef),
@@ -207,7 +210,12 @@ const SeatMapComponent: React.FC<Partial<SeatmapProps>> = ({
       }
     }
   }, [data]);
-  React.useEffect(() => {
+  useEffect(() => {
+    if (chosenSectionData) {
+      console.log(chosenSectionData);
+    }
+  }, [chosenSectionData]);
+  useEffect(() => {
     if (groupDimensions && Object.keys(groupDimensions).length) {
       const group = groupRef.current;
       if (group) {
@@ -224,9 +232,10 @@ const SeatMapComponent: React.FC<Partial<SeatmapProps>> = ({
     if (hasStageCenter && hasGroupCenter) handleReset();
   }, [stageCenter, groupCenter, handleReset]);
   useEffect(() => {
-    if (isResetDone && chosenSectionId !== 0) handleCenterChosenSection();
-  }, [chosenSectionId, handleCenterChosenSection, isResetDone]);
+    if (isResetDone && chosenSectionId !== 0) handleInitChosenSection();
+  }, [chosenSectionId, handleInitChosenSection, isResetDone]);
 
+  // render
   return (
     <SeatmapWrapper>
       <div id="stage-container">
@@ -254,7 +263,7 @@ const SeatMapComponent: React.FC<Partial<SeatmapProps>> = ({
           draggable={isDraggable}
           onWheel={(e) => {
             if (!isResetDone) return;
-            onWheelStage(e);
+            onStageWheel(e);
             checkIfNeedReset();
           }}
           onDragEnd={() => {
@@ -279,8 +288,8 @@ const SeatMapComponent: React.FC<Partial<SeatmapProps>> = ({
                 const { isStage, elements, id, attribute } = section;
                 const hideSection =
                   !isMinimap && chosenSectionId !== 0 && id !== chosenSectionId;
-
                 if (hideSection) return <></>;
+
                 return (
                   <Group
                     key={id}
@@ -289,16 +298,21 @@ const SeatMapComponent: React.FC<Partial<SeatmapProps>> = ({
                     height={attribute?.height}
                   >
                     {elements?.map(({ data, fill, display }, idx) => {
-                      const hidePath =
-                        (isMinimap && display === 1) ||
-                        (!isMinimap && idx > 0 && chosenSectionId !== 0);
-                      if (hidePath) return <></>;
+                      const hideCondition1 =
+                        isMinimap && idx > 0 && chosenSectionId !== 0;
+                      const hideCondition2 =
+                        chosenSectionId !== 0
+                          ? idx > 0 && display === 1
+                          : idx > 0 && display === 2;
+                      if (!isStage && (hideCondition1 || hideCondition2))
+                        return <></>;
 
                       const sectionEventsProps = {
                         onMouseEnter: onSectionMouseEnter,
                         onMouseLeave: onSectionMouseLeave,
                         onClick: () => onSectionClick(section),
                       };
+
                       return isStage ? (
                         <Path
                           key={`${uuidv4()}`}
