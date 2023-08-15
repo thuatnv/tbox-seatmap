@@ -5,14 +5,14 @@ import {
 } from "./constants";
 
 export const seatStatusNumToStr = (status: number) =>
-  !(status < 1 || status > 6) ? ALL_SEAT_STATUS[status - 1] : "disabled";
+  !(status < 1 || status > 6) ? ALL_SEAT_STATUS[status - 1] : "available";
 
 export const seatStatusStrToNum = (statusStr: string) =>
   ALL_SEAT_STATUS.indexOf(statusStr) + 1;
 
 export const getSeatStyles = (
-  statusStr: string = "disabled",
-  styleType: "raw" | "parsed" = "raw"
+  statusStr: string = "available",
+  styleType: "raw" | "parsed" = "parsed"
 ) =>
   styleType === "raw"
     ? SEAT_STYLES_RAW[statusStr]
