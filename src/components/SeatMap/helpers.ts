@@ -6,17 +6,16 @@ import { maxScale, minScale } from "./constants";
 
 export const handleOnWheel = (
   e: KonvaEventObject<WheelEvent>,
-  targetRef: RefObject<Stage>,
-  scaleRef: RefObject<Layer>
+  targetRef: RefObject<Stage>
 ) => {
   e.evt.preventDefault();
-  if (!targetRef.current || !scaleRef.current) return;
+  if (!targetRef.current || !targetRef.current) return;
 
-  const oldScale = scaleRef.current.scaleX();
+  const oldScale = targetRef.current.scaleX();
   const pointer = targetRef.current.getPointerPosition();
   const mousePointTo = {
-    x: ((pointer?.x || 0) - scaleRef.current.x()) / oldScale,
-    y: ((pointer?.y || 0) - scaleRef.current.y()) / oldScale,
+    x: ((pointer?.x || 0) - targetRef.current.x()) / oldScale,
+    y: ((pointer?.y || 0) - targetRef.current.y()) / oldScale,
   };
 
   let direction = e.evt.deltaY < 0 ? 1 : -1;
@@ -27,8 +26,8 @@ export const handleOnWheel = (
     y: (pointer?.y || 0) - mousePointTo.y * newScale,
   };
   if (newScale >= minScale && newScale <= maxScale) {
-    scaleRef.current.scale({ x: newScale, y: newScale });
-    scaleRef.current.position(newPos);
+    targetRef?.current?.scale({ x: newScale, y: newScale });
+    targetRef?.current?.position({ ...newPos });
   }
 };
 
@@ -40,6 +39,7 @@ export const handleResetRefs = (
     targetRef?.current?.offsetY(0);
     targetRef?.current?.x(0);
     targetRef?.current?.y(0);
+    targetRef?.current?.scale({ x: 1, y: 1 });
   }
 };
 

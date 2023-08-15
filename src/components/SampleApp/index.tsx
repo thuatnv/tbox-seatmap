@@ -1,41 +1,57 @@
 import SeatMapComponent from "components/SeatMap/SeatMapComponent";
 import { initStageH, initStageW } from "components/SeatMap/constants";
-// import useGetData from "hooks/useGetData";
-import { Data } from "types/seatmap";
-interface AppProps {
-  dataMap?: Data
-}
-const SampleApp = (props: AppProps) => {
-  const { dataMap } = props;
-  //   `/v1/events/showings/22/seatmap`
-  // );
-  // if (loading) return <div className="dark-wrap">Loading seat map data...</div>;
-  // if (error) return <div className="dark-wrap">Opps! Error: {`${error}`}</div>;
+import useGetData from "hooks/useGetData";
+import { Data, Section } from "types/seatmap";
+import { ClickedSeatsData, Data as SectionData } from "types/section";
+
+const showingId = 23;
+const chosenId = 447;
+const SampleApp = () => {
+  const [data, error, loading] = useGetData<Data>(
+    `/v1/events/showings/${showingId}/seatmap`
+  );
+  const [sectionData, sectionError, sectionLoading] = useGetData<SectionData>(
+    `/v1/events/showings/${showingId}/sections/${chosenId}`
+  );
+
+  if (loading || sectionLoading)
+    return <div className="dark-wrap">Loading data...</div>;
+  if (error || sectionError)
+    return (
+      <div className="dark-wrap">Opps! Error: {`${error || sectionError}`}</div>
+    );
+
   return (
     <div className="App dark-wrap">
-      {dataMap && (
+      {data && (
         <SeatMapComponent
-          w={initStageW}
-          h={initStageH}
-          data={dataMap?.result}
+          w={700 || initStageW}
+          h={700 || initStageH}
+          data={data?.result}
+          chosenSectionId={chosenId}
+          chosenSectionData={sectionData?.result}
+          onSectionClick={(section: Section): void => {
+            console.log({ section });
+          }}
+          getSeatsData={(data: ClickedSeatsData): void => {
+            if (data && Object.keys(data).length) {
+              console.log(data);
+            }
+          }}
           isDraggable
           isWheelable
           hasTools
           isMinimap={false}
-          chosenSectionId={0}
           />
       )}
-      {dataMap && (
+      {data && (
         <SeatMapComponent
           w={200}
           h={200}
-          data={dataMap?.result}
+          data={data?.result}
+          chosenSectionId={chosenId}
           isMinimap
-          chosenSectionId={436}
-          isWheelable={false}
-          isDraggable={false}
-          hasTools={false}
-          />
+        />
       )}
     </div>
   );

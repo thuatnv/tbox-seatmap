@@ -24,7 +24,7 @@ const useGetData = <T extends object>(
         setTimeout(() => {
           setData(rs?.data?.data);
           setLoading(false);
-        }, 1000);
+        }, 500);
       } catch (error) {
         if (error instanceof Error) {
           setError(error.message);

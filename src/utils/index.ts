@@ -1,5 +1,10 @@
 import { IRect } from "konva/lib/types";
 
+export const extractWHFromViewBox = (viewBox: string): Partial<IRect> => {
+  const values = viewBox.split(" ");
+  return { width: Number(values[2]), height: Number(values[3]) };
+};
+
 export const cssStrToObj = (stylesStr: string) =>
   stylesStr
     .split(";")
@@ -13,18 +18,14 @@ export const cssStrToObj = (stylesStr: string) =>
       return acc;
     }, {});
 
-export const hex2rgb = (hex: string, opacity?: number) => {
-  let h: string | RegExpMatchArray | null = hex.replace("#", "");
-  h = h.match(new RegExp("(.{" + h.length / 3 + "})", "g"));
-  if (h?.length) {
-    for (let i = 0; i < h?.length; i++)
-      h[i] = String(parseInt(h?.[i].length == 1 ? h[i] + h[i] : h[i], 16));
-  }
-  if (opacity) h?.push(String(opacity));
-  return "rgba(" + h?.join(",") + ")";
-};
-
-export const extractWHFromViewBox = (viewBox: string): Partial<IRect> => {
-  const values = viewBox.split(" ");
-  return { width: Number(values[2]), height: Number(values[3]) };
+export const objToCssStr = (stylesObj: { [key: string]: string }): string => {
+  return Object.entries(stylesObj)
+    .map(([key, value]) => {
+      const cssKey = key.replace(
+        /[A-Z]/g,
+        (match) => `-${match.toLowerCase()}`
+      );
+      return `${cssKey}:${value}`;
+    })
+    .join(";");
 };
