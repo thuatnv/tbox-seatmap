@@ -5,7 +5,7 @@ import { Data } from "types/seatmap";
 import { Data as SectionData } from "types/section";
 
 const showingId = 23;
-const chosenId = 447;
+const chosenId = 445;
 const SampleApp = () => {
   const [data, error, loading] = useGetData<Data>(
     `/v1/events/showings/${showingId}/seatmap`

@@ -9,7 +9,7 @@ export const SeatmapWrapper = styled.div<SeatmapWrapperProps>`
   border-radius: 0.25rem;
 
   #stage-container {
-    /* background-color: cyan; */
+    background-color: #a6a6b0;
     position: relative;
     border-radius: 0.25rem;
 
