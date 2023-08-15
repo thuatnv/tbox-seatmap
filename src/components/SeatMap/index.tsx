@@ -17,7 +17,6 @@ import { ReactComponent as ResetIcon } from "resources/svg/icon-reset-green.svg"
 /* manual: components */
 import Button from "components/Button";
 import Seat from "components/Seat";
-import { getSeatStyles } from "components/Seat/helpers";
 /* manual: others */
 import { extractWHFromViewBox } from "utils";
 import { maxScale, minScale, scaleBy } from "./constants";
@@ -35,8 +34,17 @@ type SeatmapProps = {
   hasTools: boolean;
   chosenSectionId: number;
   chosenSectionData: SectionResult;
+  onSectionClick: (arg0: Section) => void;
+  getSeatsData: (
+    arg0: Record<number, Record<string, string | number | boolean>>
+  ) => void;
 };
 type ResetTrackings = Record<string, Partial<IRect>>;
+
+let selectedSeats: Record<
+  number,
+  Record<string, string | number | boolean>
+> = {};
 
 const SeatMap: React.FC<Partial<SeatmapProps>> = ({
   w = 0,
@@ -48,6 +56,8 @@ const SeatMap: React.FC<Partial<SeatmapProps>> = ({
   hasTools = false,
   chosenSectionId = 0,
   chosenSectionData = undefined,
+  onSectionClick = () => {},
+  getSeatsData = () => {},
 }) => {
   // states
   const [groupDimensions, setGroupDimensions] = useState<Partial<IRect>>({});
@@ -174,6 +184,22 @@ const SeatMap: React.FC<Partial<SeatmapProps>> = ({
     },
     [scale, checkIfNeedReset]
   );
+  const handleSeatClickData = ({
+    seatId,
+    data,
+  }: {
+    seatId: number;
+    data: Record<string, string | number | boolean>;
+  }) => {
+    if (!selectedSeats[seatId])
+      selectedSeats = { ...selectedSeats, [seatId]: data };
+    else {
+      const selectedSeatsCopy = { ...selectedSeats };
+      delete selectedSeatsCopy[seatId];
+      selectedSeats = { ...selectedSeatsCopy };
+    }
+    // console.log({ selectedSeats }); // DEV ONLY
+  };
 
   // event handlers
   const onStageWheel = (e: KonvaEventObject<WheelEvent>) => {
@@ -193,10 +219,6 @@ const SeatMap: React.FC<Partial<SeatmapProps>> = ({
     const container = e.target?.getStage()?.container();
     if (container) container.style.cursor = "";
   };
-  const onSectionClick = (section: Section) => {
-    if (isMinimap) return;
-    console.log({ section });
-  };
 
   // effects
   useEffect(() => {
@@ -211,11 +233,6 @@ const SeatMap: React.FC<Partial<SeatmapProps>> = ({
       }
     }
   }, [data]);
-  useEffect(() => {
-    if (chosenSectionData) {
-      console.log(chosenSectionData);
-    }
-  }, [chosenSectionData]);
   useEffect(() => {
     if (groupDimensions && Object.keys(groupDimensions).length) {
       const group = groupRef.current;
@@ -286,15 +303,24 @@ const SeatMap: React.FC<Partial<SeatmapProps>> = ({
               height={groupDimensions?.height}
             >
               {data?.sections?.map((section) => {
-                const { isStage, elements, id, attribute } = section;
+                const {
+                  isStage,
+                  elements,
+                  attribute,
+                  id: sectionId,
+                  isReservingSeat: sectionIsReserveSeat,
+                  seatMapId: sectionSeatMapId,
+                } = section;
                 const hideSection =
-                  !isMinimap && chosenSectionId !== 0 && id !== chosenSectionId;
+                  !isMinimap &&
+                  chosenSectionId !== 0 &&
+                  sectionId !== chosenSectionId;
                 if (hideSection) return <></>;
 
                 return (
                   <Group
-                    key={id}
-                    ref={id === chosenSectionId ? chosenGroupRef : null}
+                    key={sectionId}
+                    ref={sectionId === chosenSectionId ? chosenGroupRef : null}
                     width={attribute?.width}
                     height={attribute?.height}
                   >
@@ -330,7 +356,7 @@ const SeatMap: React.FC<Partial<SeatmapProps>> = ({
                           visible={isResetDone}
                           {...{
                             fill: isMinimap
-                              ? chosenSectionId === section.id
+                              ? chosenSectionId === sectionId
                                 ? fill
                                 : "#d3d3d3"
                               : fill || "#fff",
@@ -343,13 +369,50 @@ const SeatMap: React.FC<Partial<SeatmapProps>> = ({
 
                     {/* SECTION SEATS */}
                     {chosenSectionData?.rows?.map((row) => {
-                      return row?.seats?.map(({ x, y }) => {
+                      const {
+                        id: rowId,
+                        name: rowName,
+                        status: rowStatus,
+                      } = row;
+
+                      return row?.seats?.map((seat) => {
+                        const {
+                          x,
+                          y,
+                          status,
+                          id: seatId,
+                          name: seatName,
+                          position: seatPosition,
+                        } = seat;
                         return (
                           <Seat
-                            visible={isResetDone}
+                            key={`seat-${uuidv4()}`}
+                            id={`seatId-${seatId}`}
+                            name={`seatName-${seatName}`}
                             x={x}
                             y={y}
-                            {...(getSeatStyles() as object)}
+                            visible={isResetDone}
+                            initStatus={status}
+                            onClick={() => {
+                              const seatDataPack = {
+                                sectionId,
+                                sectionIsReserveSeat,
+                                sectionSeatMapId,
+                                rowId,
+                                rowName,
+                                rowStatus,
+                                seatName,
+                                seatPosition,
+                              };
+                              handleChainActions([
+                                () =>
+                                  handleSeatClickData({
+                                    seatId,
+                                    data: seatDataPack,
+                                  }),
+                                () => getSeatsData(selectedSeats),
+                              ]);
+                            }}
                           />
                         );
                       });
@@ -366,12 +429,3 @@ const SeatMap: React.FC<Partial<SeatmapProps>> = ({
 };
 
 export default SeatMap;
-
-// const circle2 = new Konva.Circle({
-//   x: centerX,
-//   y: centerY,
-//   radius: 5,
-//   fill: "lime",
-// });
-// layerRef2.current.add(circle);
-// layerRef2.current.add(circle2);
