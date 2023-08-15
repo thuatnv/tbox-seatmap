@@ -24,4 +24,24 @@ export default defineConfig({
     port: 2323,
   },
   plugins: [svgr(), react()],
+  define: { "process.env.NODE_ENV": '"production"' },
+  build: {
+    minify: true,
+    sourcemap: false,
+    lib: {
+      entry: "/src/components/SeatMap/SeatMapComponent.tsx", // Update to your component's entry file
+      name: "SeatMap", // Replace with your library's name
+      formats: ["umd", "cjs", "es"], // Generate a UMD bundle
+      fileName: (format) => `seetMap.${format}.js`,
+    },
+    rollupOptions: {
+      external: ["react", "react-dom"],
+      output: {
+        globals: {
+          react: "React",
+          "react-dom": "ReactDOM",
+        },
+      },
+    },
+  },
 });
