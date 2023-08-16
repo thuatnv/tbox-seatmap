@@ -1,10 +1,13 @@
 {
   "name": "@tikivn/tbox-seatmap",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "type": "module",
   "source": "src/index.ts",
-  "main": "dist/index.js",
-  "module": "dist/index.mjs",
+  "main": "build/index.js",
+  "module": "build/index.mjs",
+  "files": [
+    "build"
+  ],
   "scripts": {
     "dev": "vite",
     "build": "tsc && vite build",
@@ -14,12 +17,14 @@
     "format": "prettier --write src//**/*.{ts,tsx,css} --config ./.prettierrc",
     "preview": "vite preview",
     "storybook": "storybook dev -p 6006",
-    "build-storybook": "storybook build"
+    "build-storybook": "storybook build -o dist",
+    "start": "node server/index.cjs"
   },
   "dependencies": {
     "-": "^0.0.1",
     "D": "^1.0.0",
     "axios": "^1.4.0",
+    "express": "^4.18.2",
     "konva": "^9.2.0",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
@@ -47,11 +52,11 @@
     "eslint-plugin-storybook": "^0.6.13",
     "path": "^0.12.7",
     "storybook": "^7.2.1",
+    "string-width": "^2.1.1",
     "typescript": "^5.0.2",
     "uuid": "^9.0.0",
     "vite": "^4.4.5",
-    "vite-plugin-svgr": "^3.2.0",
-    "string-width": "^2.1.1"
+    "vite-plugin-svgr": "^3.2.0"
   },
   "resolutions": {
     "jackspeak": "2.1.1"

@@ -28,11 +28,18 @@ export default defineConfig({
   build: {
     minify: true,
     sourcemap: false,
+    outDir: 'build',
     lib: {
       entry: "/src/components/SeatMap/SeatMapComponent.tsx", // Update to your component's entry file
       name: "SeatMap", // Replace with your library's name
       formats: ["umd", "cjs", "es"], // Generate a UMD bundle
-      fileName: (format) => `seetMap.${format}.js`,
+      fileName: (format) => {
+        if(format === "es"){
+          return `index.js`;
+        }else {
+          return `index.${format}.js`
+        }
+      },
     },
     rollupOptions: {
       external: ["react", "react-dom"],
