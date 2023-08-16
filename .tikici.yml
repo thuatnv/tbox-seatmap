@@ -58,7 +58,7 @@ jobs:
           name: 'Publish Package'
           command: yarn publish
       - save_cache:
-          key: ekyc-fe
+          key: tbox-seatmap
           paths:
             - /home/node/.yarn
 workflows:
