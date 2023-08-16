@@ -5,6 +5,6 @@ WORKDIR /app
 COPY . /app/
 RUN yarn && yarn build-storybook
 
-EXPOSE 80
-
 RUN yarn start
+
+EXPOSE 80
