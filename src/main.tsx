@@ -1,15 +1,11 @@
 import React from 'react'
 import ReactDOM from 'react-dom/client'
 // import App from './App.tsx'
-import { SeatMapComponent } from './SeatMap/SeatMapComponent';
+import SampleApp from 'components/SampleApp';
 // import './index.css'
 
 ReactDOM.createRoot(document.getElementById("root")!).render(
   <React.StrictMode>
-    <SeatMapComponent
-      viewType='miniMap'
-      wheeLable={true}
-
-    />
+    <SampleApp />
   </React.StrictMode>,
 )

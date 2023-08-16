@@ -53,7 +53,7 @@ jobs:
           command: yarn
       - run:
           name: 'Build Package'
-          command: yarn build
+          command: yarn buildLibrary
       - run:
           name: 'Publish Package'
           command: yarn publish

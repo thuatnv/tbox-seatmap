@@ -43,7 +43,7 @@ const SampleApp = () => {
           hasTools
         />
       )}
-      {dataMap && (
+      {data && (
         <SeatMapComponent
           w={200}
           h={200}
