@@ -5,6 +5,6 @@ WORKDIR /app
 COPY . /app/
 RUN yarn && yarn build-storybook
 
-RUN yarn start
+CMD ["yarn", "start"]
 
 EXPOSE 80
