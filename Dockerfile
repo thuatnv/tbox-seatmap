@@ -7,4 +7,4 @@ RUN yarn && yarn build-storybook
 
 EXPOSE 80
 
-CMD yarn start
+RUN yarn start
