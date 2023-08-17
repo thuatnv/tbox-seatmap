@@ -24,10 +24,15 @@ import { handleChainActions, handleOnWheel, handleResetRefs } from "./helpers";
 import { SeatmapWrapper } from "./style";
 
 /* component types */
+type PostMessageData =
+  | Section
+  | ClickedSeatsData
+  | Record<string, string | number>
+  | undefined;
 type SeatmapProps = {
-  w?: number;
-  h?: number;
-  data?: Result;
+  w: number;
+  h: number;
+  data: Result;
   isMinimap?: boolean;
   isWheelable?: boolean;
   isDraggable?: boolean;
@@ -35,14 +40,15 @@ type SeatmapProps = {
   hasSeatNumbers?: boolean;
   chosenSectionId?: number;
   chosenSectionData?: SectionResult;
+  serviceLocation: "web" | "mobile" | "admin";
   onSectionClick?: (arg0: Section) => void;
   onSeatsClick?: (arg0: ClickedSeatsData) => void;
   onError?: (arg0: Record<string, string | number> | undefined) => void;
+  onPostMessage?: (arg0: string) => void;
 };
 type ResetTrackings = Record<string, Partial<IRect>>;
 
 let selectedSeats: ClickedSeatsData = {};
-
 const SeatMap: React.FC<SeatmapProps> = ({
   w = 0,
   h = 0,
@@ -54,9 +60,11 @@ const SeatMap: React.FC<SeatmapProps> = ({
   hasSeatNumbers = true,
   chosenSectionId = 0,
   chosenSectionData = undefined,
+  serviceLocation = "web",
   onSectionClick = () => {},
   onSeatsClick = () => {},
   onError = () => {},
+  onPostMessage = () => {},
 }) => {
   // states
   const [groupDimensions, setGroupDimensions] = useState<Partial<IRect>>({});
@@ -249,6 +257,38 @@ const SeatMap: React.FC<SeatmapProps> = ({
       });
     }
   };
+  const handlePostMessage = useCallback(
+    (
+      type: "onSectionClick" | "onSeatsClick" | "onError",
+      data: PostMessageData
+    ) => {
+      try {
+        if (serviceLocation !== "mobile") return;
+        switch (type) {
+          case "onSectionClick":
+            onPostMessage(JSON.stringify({ type: "onSectionClick", data }));
+            return;
+          case "onSeatsClick":
+            onPostMessage(
+              JSON.stringify({
+                type: "onSeatsClick",
+                data: Object.values(selectedSeats),
+              })
+            );
+            return;
+          default:
+            onPostMessage(JSON.stringify({ type: "onError", data: errors }));
+            return;
+        }
+      } catch (error) {
+        setErrors({
+          code: 1001,
+          message: `[ERROR][${ERRORS[1001]}][handlePostMessage]: ${error}`,
+        });
+      }
+    },
+    [errors, onPostMessage, serviceLocation]
+  );
 
   // event handlers
   const onStageWheel = (e: KonvaEventObject<WheelEvent>) => {
@@ -347,12 +387,13 @@ const SeatMap: React.FC<SeatmapProps> = ({
     if (!hasError) {
       if (errors && Object.keys(errors).length) {
         onError(errors);
+        handlePostMessage("onError", errors);
         setHasError(true);
         return;
       }
       setHasError(false);
     }
-  }, [errors, hasError, onError]);
+  }, [errors, handlePostMessage, hasError, onError]);
   useEffect(() => {
     try {
       if (data && Object.keys(data).length && data.viewbox) {
@@ -503,8 +544,10 @@ const SeatMap: React.FC<SeatmapProps> = ({
                         onMouseLeave: onSectionMouseLeave,
                         onClick: () => {
                           try {
-                            if (section && Object.keys(section).length)
+                            if (section && Object.keys(section).length) {
                               onSectionClick(section);
+                              handlePostMessage("onSectionClick", section);
+                            }
                           } catch (error) {
                             setErrors({
                               code: 1002,
@@ -577,6 +620,7 @@ const SeatMap: React.FC<SeatmapProps> = ({
                                   rowId,
                                   rowName,
                                   rowStatus,
+                                  seatId,
                                   seatName,
                                   seatPosition,
                                 };
@@ -587,6 +631,11 @@ const SeatMap: React.FC<SeatmapProps> = ({
                                       data: seatDataPack,
                                     }),
                                   () => onSeatsClick(selectedSeats),
+                                  () =>
+                                    handlePostMessage(
+                                      "onSeatsClick",
+                                      selectedSeats
+                                    ),
                                 ]);
                               } catch (error) {
                                 setErrors({

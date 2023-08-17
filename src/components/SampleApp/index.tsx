@@ -33,6 +33,7 @@ const SampleApp = () => {
           data={data?.result}
           chosenSectionId={chosenId}
           chosenSectionData={sectionData?.result}
+          serviceLocation="mobile" // handle error TODO
           onSectionClick={(section: Section): void => {
             console.log({ section });
           }}
@@ -42,14 +43,19 @@ const SampleApp = () => {
           onError={(err) => {
             console.log(err);
           }}
+          onPostMessage={(postMsg) => {
+            console.log({ postMsg });
+          }}
         />
       )}
       {data && (
         <SeatMap
           w={200}
           h={200}
-          isMinimap
+          serviceLocation="web"
           data={data?.result}
+          
+          isMinimap
           chosenSectionId={chosenId}
           onError={(err) => {
             console.log(err);
