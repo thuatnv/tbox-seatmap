@@ -1,5 +1,5 @@
 import { KonvaEventObject } from "konva/lib/Node";
-import { useState } from "react";
+import { useState, memo } from "react";
 import { Circle, Group, Text } from "react-konva";
 import { getSeatStyles, seatStatusNumToStr } from "./helpers";
 
@@ -84,4 +84,4 @@ const Seat: React.FC<Partial<SeatProps>> = ({
   );
 };
 
-export default Seat;
+export default memo(Seat);

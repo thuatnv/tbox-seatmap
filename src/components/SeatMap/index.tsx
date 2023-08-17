@@ -1,5 +1,5 @@
 /* libraries */
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState, memo } from "react";
 import { Group, Layer, Path, Stage } from "react-konva";
 import { v4 as uuidv4 } from "uuid";
 /* types */
@@ -659,4 +659,4 @@ const SeatMap: React.FC<SeatmapProps> = ({
   );
 };
 
-export default SeatMap;
+export default memo(SeatMap);
