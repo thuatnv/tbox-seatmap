@@ -64,27 +64,27 @@ jobs:
 workflows:
   jenkins_pipeline:
     jobs:
-      - build_docker:
-          filters:
-            branches:
-              only:
-                - develop
-                - master
-      - publish_docker:
-          requires:
-            - build_docker
-          filters:
-            branches:
-              only:
-                - develop
-                - master
-      - deploy_dev:
-          requires:
-            - publish_docker
-          filters:
-            branches:
-              only:
-                - develop
+      # - build_docker:
+      #     filters:
+      #       branches:
+      #         only:
+      #           - develop
+      #           - master
+      # - publish_docker:
+      #     requires:
+      #       - build_docker
+      #     filters:
+      #       branches:
+      #         only:
+      #           - develop
+      #           - master
+      # - deploy_dev:
+      #     requires:
+      #       - publish_docker
+      #     filters:
+      #       branches:
+      #         only:
+      #           - develop
       # - deploy_prod:
       #     requires:
       #       - publish_docker
