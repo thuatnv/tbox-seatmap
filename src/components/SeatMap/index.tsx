@@ -20,7 +20,12 @@ import Seat from "components/Seat";
 /* manual: others */
 import { extractWHFromViewBox } from "utils";
 import { maxScale, minScale, scaleBy } from "./constants";
-import { handleChainActions, handleOnWheel, handleResetRefs } from "./helpers";
+import {
+  createError,
+  handleChainActions,
+  handleOnWheel,
+  handleResetRefs,
+} from "./helpers";
 import { SeatmapWrapper } from "./style";
 
 /* component types */
@@ -28,20 +33,22 @@ type SeatmapProps = {
   w: number;
   h: number;
   data: Result;
-  isWheelable: boolean;
-  isDraggable: boolean;
-  isMinimap: boolean;
-  hasTools: boolean;
-  chosenSectionId: number;
-  chosenSectionData: SectionResult;
-  onSectionClick: (arg0: Section) => void;
-  getSeatsData: (arg0: ClickedSeatsData) => void;
+  isWheelable?: boolean;
+  isDraggable?: boolean;
+  isMinimap?: boolean;
+  hasTools?: boolean;
+  hasSeatNumbers?: boolean;
+  chosenSectionId?: number;
+  chosenSectionData?: SectionResult;
+  onSectionClick?: (arg0: Section) => void;
+  onSeatsClick?: (arg0: ClickedSeatsData) => void;
+  onError?: (arg0: string) => void;
 };
 type ResetTrackings = Record<string, Partial<IRect>>;
 
 let selectedSeats: ClickedSeatsData = {};
 
-const SeatMap: React.FC<Partial<SeatmapProps>> = ({
+const SeatMap: React.FC<SeatmapProps> = ({
   w = 0,
   h = 0,
   data = undefined,
@@ -49,10 +56,12 @@ const SeatMap: React.FC<Partial<SeatmapProps>> = ({
   isDraggable = false,
   isMinimap = false,
   hasTools = false,
+  hasSeatNumbers = true,
   chosenSectionId = 0,
   chosenSectionData = undefined,
   onSectionClick = () => {},
-  getSeatsData = () => {},
+  onSeatsClick = () => {},
+  onError = () => {},
 }) => {
   // states
   const [groupDimensions, setGroupDimensions] = useState<Partial<IRect>>({});
@@ -62,6 +71,9 @@ const SeatMap: React.FC<Partial<SeatmapProps>> = ({
   const [resetTrackings, setResetTrackings] = useState<ResetTrackings>({});
   const [shouldReset, setShouldReset] = useState<boolean>(false);
   const [scale, setScale] = useState<number>(0);
+  const [error, setError] = useState<string>("");
+  const [hasError, setHasError] = useState<boolean>(false);
+  const [isInitErrorCheck, setInitErrorCheck] = useState<boolean>(false);
 
   // refs
   const stageRef = useRef<StageType>(null);
@@ -71,110 +83,130 @@ const SeatMap: React.FC<Partial<SeatmapProps>> = ({
 
   // methods
   const handleInitChosenSection = useCallback(() => {
-    if (isMinimap) return;
-    const stage = stageRef.current;
-    const layer = layerRef.current;
-    const chosenGroup = chosenGroupRef.current;
+    try {
+      if (isMinimap) return;
+      const stage = stageRef.current;
+      const layer = layerRef.current;
+      const chosenGroup = chosenGroupRef.current;
 
-    if (stage && layer && chosenGroup) {
-      const scaleX = Math.abs(stage.width() / chosenGroup.width());
-      const scaleY = Math.abs(stage.height() / chosenGroup.height());
-      const scale = Math.min(scaleX, scaleY);
-      layer.scale({
-        x: scale,
-        y: scale,
-      });
-      setScale(scale);
+      if (stage && layer && chosenGroup) {
+        const scaleX = Math.abs(stage.width() / chosenGroup.width());
+        const scaleY = Math.abs(stage.height() / chosenGroup.height());
+        const scale = Math.min(scaleX, scaleY);
+        layer.scale({
+          x: scale,
+          y: scale,
+        });
+        setScale(scale);
 
-      const boundingBox = chosenGroup.getClientRect();
-      const centerX = boundingBox.x + boundingBox.width / 2;
-      const centerY = boundingBox.y + boundingBox.height / 2;
-      if (stageCenter && Object.keys(stageCenter).length) {
-        const offsetX = (stageCenter.x as number) - centerX;
-        const offsetY = (stageCenter.y as number) - centerY;
-        const isDiffFromCenter = offsetX || offsetY;
-        if (isDiffFromCenter) {
-          stage.position({
-            x: offsetX,
-            y: offsetY,
-          });
+        const boundingBox = chosenGroup.getClientRect();
+        const centerX = boundingBox.x + boundingBox.width / 2;
+        const centerY = boundingBox.y + boundingBox.height / 2;
+        if (stageCenter && Object.keys(stageCenter).length) {
+          const offsetX = (stageCenter.x as number) - centerX;
+          const offsetY = (stageCenter.y as number) - centerY;
+          const isDiffFromCenter = offsetX || offsetY;
+          if (isDiffFromCenter) {
+            stage.position({
+              x: offsetX,
+              y: offsetY,
+            });
+          }
         }
       }
+    } catch (error) {
+      setError(createError(error));
     }
   }, [isMinimap, stageCenter]);
   const handleBackToInitState = useCallback(() => {
-    const stage = stageRef.current;
-    const layer = layerRef.current;
-    const group = groupRef.current;
+    try {
+      const stage = stageRef.current;
+      const layer = layerRef.current;
+      const group = groupRef.current;
 
-    if (stage && layer && group) {
-      handleResetRefs(stageRef);
+      if (stage && layer && group) {
+        handleResetRefs(stageRef);
 
-      const scaleX = stage.width() / group.width();
-      const scaleY = stage.height() / group.height();
-      const scale = Math.min(scaleX, scaleY);
-      layer.scale({ x: scale, y: scale });
-      setScale(scale);
+        const scaleX = stage.width() / group.width();
+        const scaleY = stage.height() / group.height();
+        const scale = Math.min(scaleX, scaleY);
+        layer.scale({ x: scale, y: scale });
+        setScale(scale);
 
-      const stageCenterX = stage.width() / 2;
-      const stageCenterY = stage.height() / 2;
-      const groupCenterX = (group.width() * scale) / 2;
-      const groupCenterY = (group.height() * scale) / 2;
-      const offsetX = stageCenterX - groupCenterX;
-      const offsetY = stageCenterY - groupCenterY;
-      layer.to({
-        x: offsetX,
-        y: offsetY,
-        duration: 0.1,
-      });
-      setResetTrackings({
-        scale: { x: scale, y: scale },
-        position: {
+        const stageCenterX = stage.width() / 2;
+        const stageCenterY = stage.height() / 2;
+        const groupCenterX = (group.width() * scale) / 2;
+        const groupCenterY = (group.height() * scale) / 2;
+        const offsetX = stageCenterX - groupCenterX;
+        const offsetY = stageCenterY - groupCenterY;
+        layer.to({
           x: offsetX,
           y: offsetY,
-        },
-      });
-      setShouldReset(false);
+          duration: 0.1,
+        });
+        setResetTrackings({
+          scale: { x: scale, y: scale },
+          position: {
+            x: offsetX,
+            y: offsetY,
+          },
+        });
+        setShouldReset(false);
+      }
+    } catch (error) {
+      setError(createError(error));
     }
   }, []);
   const handleReset = useCallback(() => {
-    handleChainActions(
-      [
-        () => setResetDone(false),
-        handleBackToInitState,
-        () => setResetDone(true),
-      ],
-      300
-    );
+    try {
+      handleChainActions(
+        [
+          () => setResetDone(false),
+          handleBackToInitState,
+          () => setResetDone(true),
+        ],
+        300
+      );
+    } catch (error) {
+      setError(createError(error));
+    }
   }, [handleBackToInitState]);
   const checkIfNeedReset = useCallback(() => {
-    const stage = stageRef.current;
-    if (stage) {
-      const currentScale = stage.scaleX();
-      const currentX = stage.x();
-      const currentY = stage.y();
+    try {
+      const stage = stageRef.current;
+      if (stage) {
+        const currentScale = stage.scaleX();
+        const currentX = stage.x();
+        const currentY = stage.y();
 
-      if (resetTrackings && Object.keys(resetTrackings).length) {
-        const resetScale = resetTrackings.scale.x as number;
-        const resetX = resetTrackings.position.x as number;
-        const resetY = resetTrackings.position.y as number;
-        const isScaleReset = Math.abs(currentScale - resetScale) > 0.001;
-        const isPositionReset =
-          Math.abs(currentX - resetX) > 0.001 ||
-          Math.abs(currentY - resetY) > 0.001;
-        setShouldReset(isScaleReset || isPositionReset);
+        if (resetTrackings && Object.keys(resetTrackings).length) {
+          const resetScale = resetTrackings.scale.x as number;
+          const resetX = resetTrackings.position.x as number;
+          const resetY = resetTrackings.position.y as number;
+          const isScaleReset = Math.abs(currentScale - resetScale) > 0.001;
+          const isPositionReset =
+            Math.abs(currentX - resetX) > 0.001 ||
+            Math.abs(currentY - resetY) > 0.001;
+          setShouldReset(isScaleReset || isPositionReset);
+        }
       }
+    } catch (error) {
+      setError(createError(error));
     }
   }, [resetTrackings]);
   const handleZoom = useCallback(
     (type: "out" | "in") => {
-      const newScale = Math.abs(scale + scaleBy * (type === "out" ? -1 : 1));
+      try {
+        const newScale = Math.abs(scale + scaleBy * (type === "out" ? -1 : 1));
 
-      if (newScale >= minScale && newScale <= maxScale) {
-        handleChainActions([
-          () => setScale(scale + scaleBy * (type === "out" ? -1 : 1)),
-          checkIfNeedReset,
-        ]);
+        if (newScale >= minScale && newScale <= maxScale) {
+          handleChainActions([
+            () => setScale(scale + scaleBy * (type === "out" ? -1 : 1)),
+            checkIfNeedReset,
+          ]);
+        }
+      } catch (error) {
+        setError(createError(error));
       }
     },
     [scale, checkIfNeedReset]
@@ -186,56 +218,138 @@ const SeatMap: React.FC<Partial<SeatmapProps>> = ({
     seatId: number;
     data: Record<string, string | number | boolean>;
   }) => {
-    if (!selectedSeats[seatId])
-      selectedSeats = { ...selectedSeats, [seatId]: data };
-    else {
-      const selectedSeatsCopy = { ...selectedSeats };
-      delete selectedSeatsCopy[seatId];
-      selectedSeats = { ...selectedSeatsCopy };
+    try {
+      if (!selectedSeats[seatId])
+        selectedSeats = { ...selectedSeats, [seatId]: data };
+      else {
+        const selectedSeatsCopy = { ...selectedSeats };
+        delete selectedSeatsCopy[seatId];
+        selectedSeats = { ...selectedSeatsCopy };
+      }
+    } catch (error) {
+      setError(createError(error));
     }
   };
 
   // event handlers
   const onStageWheel = (e: KonvaEventObject<WheelEvent>) => {
-    if (!isWheelable) return;
-    handleChainActions([
-      () => handleOnWheel(e, stageRef),
-      () => setScale(layerRef?.current?.scaleX() as number),
-    ]);
+    try {
+      if (!isWheelable) return;
+      handleChainActions([
+        () => handleOnWheel(e, stageRef),
+        () => setScale(layerRef?.current?.scaleX() as number),
+      ]);
+    } catch (error) {
+      setError(createError(error));
+    }
   };
   const onSectionMouseEnter = (e: KonvaEventObject<MouseEvent>) => {
-    if (isMinimap) return;
-    const container = e.target?.getStage()?.container();
-    if (container) container.style.cursor = "pointer";
+    try {
+      if (isMinimap) return;
+      const container = e.target?.getStage()?.container();
+      if (container) container.style.cursor = "pointer";
+    } catch (error) {
+      setError(createError(error));
+    }
   };
   const onSectionMouseLeave = (e: KonvaEventObject<MouseEvent>) => {
-    if (isMinimap) return;
-    const container = e.target?.getStage()?.container();
-    if (container) container.style.cursor = "";
+    try {
+      if (isMinimap) return;
+      const container = e.target?.getStage()?.container();
+      if (container) container.style.cursor = "";
+    } catch (error) {
+      setError(createError(error));
+    }
   };
 
   // effects
   useEffect(() => {
-    if (data && data.viewbox) {
-      const stage = stageRef.current;
-      if (stage) {
-        const stageCenter = stage.getAbsolutePosition() as IRect;
-        const centerX = stageCenter.x + stage.width() / 2;
-        const centerY = stageCenter.y + stage.height() / 2;
-        setStageCenter({ x: centerX, y: centerY });
-        setGroupDimensions(extractWHFromViewBox(data?.viewbox as string));
+    const errPrefix = isMinimap ? "TYPE_MINI" : "TYPE_NORMAL";
+    const hasNoSeatmapData = !data || Object.keys(data).length <= 0;
+    if (hasNoSeatmapData) {
+      setError(createError(`[${errPrefix}]: Must provide data attribute!`));
+      return;
+    }
+
+    const hasNoWidthHeight = w <= 0 || h <= 0;
+    if (hasNoWidthHeight) {
+      setError(
+        createError(`[${errPrefix}]: Must provide width AND height attributes!`)
+      );
+      return;
+    }
+
+    const hasSectionIdButNoData =
+      chosenSectionId !== 0 &&
+      !isMinimap &&
+      (!chosenSectionData || Object.keys(chosenSectionData).length <= 0);
+    const hasSectionDataButNoId =
+      chosenSectionId === 0 &&
+      !isMinimap &&
+      chosenSectionData &&
+      Object.keys(chosenSectionData).length;
+    if (hasSectionIdButNoData) {
+      setError(
+        createError(
+          `[${errPrefix}]: Must provide valid chosenSectionData when chosenSectionId exists!`
+        )
+      );
+      return;
+    }
+    if (hasSectionDataButNoId) {
+      setError(
+        createError(
+          `[${errPrefix}]: Must provide valid chosenSectionId when chosenSectionData exists!`
+        )
+      );
+      return;
+    }
+    const minimapButNoSectionId = isMinimap && chosenSectionId === 0;
+    if (minimapButNoSectionId) {
+      setError(
+        createError(`[${errPrefix}]: Must provide chosenSectionId for minimap!`)
+      );
+    }
+
+    setInitErrorCheck(true);
+  }, [chosenSectionData, chosenSectionId, data, h, isMinimap, w]);
+  useEffect(() => {
+    if (error) {
+      onError(error);
+      setHasError(true);
+      return;
+    }
+    setHasError(false);
+  }, [error, hasError, isResetDone, onError]);
+  useEffect(() => {
+    try {
+      if (data && Object.keys(data).length && data.viewbox) {
+        const stage = stageRef.current;
+        if (stage) {
+          const stageCenter = stage.getAbsolutePosition() as IRect;
+          const centerX = stageCenter.x + stage.width() / 2;
+          const centerY = stageCenter.y + stage.height() / 2;
+          setStageCenter({ x: centerX, y: centerY });
+          setGroupDimensions(extractWHFromViewBox(data?.viewbox as string));
+        }
       }
+    } catch (error) {
+      setError(createError(error));
     }
   }, [data]);
   useEffect(() => {
-    if (groupDimensions && Object.keys(groupDimensions).length) {
-      const group = groupRef.current;
-      if (group) {
-        const groupCenter = group.getAbsolutePosition() as IRect;
-        const centerX = groupCenter.x + group.width() / 2;
-        const centerY = groupCenter.y + group.height() / 2;
-        setGroupCenter({ x: centerX, y: centerY });
+    try {
+      if (groupDimensions && Object.keys(groupDimensions).length) {
+        const group = groupRef.current;
+        if (group) {
+          const groupCenter = group.getAbsolutePosition() as IRect;
+          const centerX = groupCenter.x + group.width() / 2;
+          const centerY = groupCenter.y + group.height() / 2;
+          setGroupCenter({ x: centerX, y: centerY });
+        }
       }
+    } catch (error) {
+      setError(createError(error));
     }
   }, [groupDimensions]);
   useEffect(() => {
@@ -252,7 +366,7 @@ const SeatMap: React.FC<Partial<SeatmapProps>> = ({
 
   // render
   return (
-    <SeatmapWrapper>
+    <SeatmapWrapper style={{ opacity: isInitErrorCheck && !hasError ? 1 : 0 }}>
       <div id="stage-container">
         {/* BUTTONS */}
         {hasTools && (
@@ -276,12 +390,15 @@ const SeatMap: React.FC<Partial<SeatmapProps>> = ({
           height={h}
           ref={stageRef}
           draggable={isDraggable}
+          onDragEnd={checkIfNeedReset}
+          visible={isInitErrorCheck && !hasError}
           onWheel={(e) => {
+            /* STOP EVEMT AUTO CATCHING */
+            e.evt.preventDefault();
+            e.evt.stopPropagation();
+            /* STOP EVEMT AUTO CATCHING */
             if (!isResetDone) return;
             onStageWheel(e);
-            checkIfNeedReset();
-          }}
-          onDragEnd={() => {
             checkIfNeedReset();
           }}
         >
@@ -290,9 +407,7 @@ const SeatMap: React.FC<Partial<SeatmapProps>> = ({
             ref={layerRef}
             scale={{ x: scale, y: scale }}
             draggable={isDraggable}
-            onDragEnd={() => {
-              checkIfNeedReset();
-            }}
+            onDragEnd={checkIfNeedReset}
           >
             <Group
               ref={groupRef}
@@ -308,6 +423,7 @@ const SeatMap: React.FC<Partial<SeatmapProps>> = ({
                   isReservingSeat: sectionIsReserveSeat,
                   seatMapId: sectionSeatMapId,
                 } = section;
+
                 const hideSection =
                   !isMinimap &&
                   chosenSectionId !== 0 &&
@@ -335,7 +451,15 @@ const SeatMap: React.FC<Partial<SeatmapProps>> = ({
                       const sectionEventsProps = {
                         onMouseEnter: onSectionMouseEnter,
                         onMouseLeave: onSectionMouseLeave,
-                        onClick: () => onSectionClick(section),
+                        onClick: () => {
+                          try {
+                            if (section && Object.keys(section).length) {
+                              onSectionClick(section);
+                            }
+                          } catch (error) {
+                            setError(createError(error));
+                          }
+                        },
                       };
 
                       return isStage ? (
@@ -385,30 +509,36 @@ const SeatMap: React.FC<Partial<SeatmapProps>> = ({
                           <Seat
                             key={`seat-${uuidv4()}`}
                             id={`seatId-${seatId}`}
-                            name={`seatName-${seatName}`}
+                            name={seatName}
                             x={x}
                             y={y}
+                            showName={hasSeatNumbers}
                             visible={isResetDone}
                             initStatus={status}
-                            onClick={() => {
-                              const seatDataPack = {
-                                sectionId,
-                                sectionIsReserveSeat,
-                                sectionSeatMapId,
-                                rowId,
-                                rowName,
-                                rowStatus,
-                                seatName,
-                                seatPosition,
-                              };
-                              handleChainActions([
-                                () =>
-                                  handleSeatClickData({
-                                    seatId,
-                                    data: seatDataPack,
-                                  }),
-                                () => getSeatsData(selectedSeats),
-                              ]);
+                            onClick={(e) => {
+                              try {
+                                e.evt.preventDefault();
+                                const seatDataPack = {
+                                  sectionId,
+                                  sectionIsReserveSeat,
+                                  sectionSeatMapId,
+                                  rowId,
+                                  rowName,
+                                  rowStatus,
+                                  seatName,
+                                  seatPosition,
+                                };
+                                handleChainActions([
+                                  () =>
+                                    handleSeatClickData({
+                                      seatId,
+                                      data: seatDataPack,
+                                    }),
+                                  () => onSeatsClick(selectedSeats),
+                                ]);
+                              } catch (error) {
+                                setError(createError(error));
+                              }
                             }}
                           />
                         );

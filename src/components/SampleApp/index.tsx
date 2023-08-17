@@ -1,11 +1,11 @@
 import SeatMap from "components/SeatMap";
-import { initStageH, initStageW } from "components/SeatMap/constants";
 import useGetData from "hooks/useGetData";
 import { Data, Section } from "types/seatmap";
 import { ClickedSeatsData, Data as SectionData } from "types/section";
 
 const showingId = 23;
-const chosenId = 447;
+const chosenId = 443;
+
 const SampleApp = () => {
   const [data, error, loading] = useGetData<Data>(
     `/v1/events/showings/${showingId}/seatmap`
@@ -25,31 +25,35 @@ const SampleApp = () => {
     <div className="App dark-wrap">
       {data && (
         <SeatMap
-          w={700 || initStageW}
-          h={700 || initStageH}
+          w={700}
+          h={700}
+          isDraggable
+          isWheelable
+          hasTools
           data={data?.result}
           chosenSectionId={chosenId}
           chosenSectionData={sectionData?.result}
           onSectionClick={(section: Section): void => {
             console.log({ section });
           }}
-          getSeatsData={(data: ClickedSeatsData): void => {
-            if (data && Object.keys(data).length) {
-              console.log(data);
-            }
+          onSeatsClick={(seats: ClickedSeatsData): void => {
+            console.log({ seats });
           }}
-          isDraggable
-          isWheelable
-          hasTools
+          onError={(err) => {
+            console.log(err);
+          }}
         />
       )}
       {data && (
         <SeatMap
           w={200}
           h={200}
+          isMinimap
           data={data?.result}
           chosenSectionId={chosenId}
-          isMinimap
+          onError={(err) => {
+            console.log(err);
+          }}
         />
       )}
     </div>

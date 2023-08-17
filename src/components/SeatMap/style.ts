@@ -1,14 +1,12 @@
 import styled from "styled-components";
 
-// object = placeholder
-type SeatmapWrapperProps = object;
-
-export const SeatmapWrapper = styled.div<SeatmapWrapperProps>`
+export const SeatmapWrapper = styled.div`
   /* background-color: #000; */
-  border: 1px solid #2dc275;
-  border-radius: 0.25rem;
   /* overflow: hidden;
   overscroll-behavior: none; */
+
+  border: 1px solid #2dc275;
+  border-radius: 0.25rem;
 
   #stage-container {
     background-color: #a6a6b0;
@@ -16,8 +14,8 @@ export const SeatmapWrapper = styled.div<SeatmapWrapperProps>`
     border-radius: 0.25rem;
 
     /* border-top: 3px solid; */
-    /* border-bottom: 3px solid;
-    border-image-slice: 1;
+    /* border-bottom: 3px solid; */
+    /* border-image-slice: 1;
     border-image-source: linear-gradient(
       90deg,
       rgba(0, 0, 0, 0.95) 0%,
