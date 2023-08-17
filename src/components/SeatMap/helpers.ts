@@ -51,3 +51,6 @@ export const handleChainActions = (actions: (() => void)[], ms = 100) => {
     }, ms * i + 1);
   }
 };
+
+export const createError = (error: Error | string | unknown) =>
+  error || error instanceof Error ? `[ErrorCore]${error}` : "";
