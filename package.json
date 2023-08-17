@@ -1,6 +1,6 @@
 {
   "name": "@tikivn/tbox-seatmap",
-  "version": "0.0.7",
+  "version": "0.0.9",
   "type": "module",
   "source": "src/index.ts",
   "main": "build/index.js",
