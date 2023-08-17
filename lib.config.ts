@@ -30,7 +30,7 @@ export default defineConfig({
     sourcemap: false,
     outDir: 'build',
     lib: {
-      entry: "/src/components/SeatMap/SeatMapComponent.tsx", // Update to your component's entry file
+      entry: "/src/components/SeatMap/index.tsx", // Update to your component's entry file
       name: "SeatMap", // Replace with your library's name
       formats: ["umd", "cjs", "es"], // Generate a UMD bundle
       fileName: (format) => {

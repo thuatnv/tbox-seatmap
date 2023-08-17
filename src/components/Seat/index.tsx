@@ -1,24 +1,26 @@
 import { KonvaEventObject } from "konva/lib/Node";
 import { useState } from "react";
-import { Circle } from "react-konva";
+import { Circle, Group, Text } from "react-konva";
 import { getSeatStyles, seatStatusNumToStr } from "./helpers";
 
 type SeatProps = {
   id: string;
   name: string;
   visible: boolean;
+  showName: boolean;
   x: number;
   y: number;
   radius: number;
   strokeWidth: number;
   initStatus: number;
-  onClick?: () => void;
+  onClick?: (arg0: KonvaEventObject<MouseEvent>) => void;
 };
 
 const Seat: React.FC<Partial<SeatProps>> = ({
   id = "",
   name = "",
   visible = true,
+  showName = true,
   x = 0,
   y = 0,
   radius = 4.5,
@@ -47,22 +49,38 @@ const Seat: React.FC<Partial<SeatProps>> = ({
 
   // render
   return (
-    <Circle
+    <Group
+      id={id}
       onMouseEnter={onSeatMouseEnter}
       onMouseLeave={onSeatMouseLeave}
-      onClick={() => {
+      onClick={(e) => {
         onSeatClickInside();
-        onClick && onClick();
+        onClick && onClick(e);
       }}
-      id={id}
-      name={name}
-      visible={visible}
-      x={x}
-      y={y}
-      radius={radius}
-      strokeWidth={strokeWidth}
-      {...(getSeatStyles(seatStatusNumToStr(currentStatus)) as object)}
-    />
+    >
+      <Circle
+        x={x}
+        y={y}
+        visible={visible}
+        radius={radius}
+        strokeWidth={strokeWidth}
+        {...(getSeatStyles(seatStatusNumToStr(currentStatus)) as object)}
+      />
+      {showName && (
+        <Text
+          text={name}
+          x={x - (radius / 2) * 2}
+          y={y - (radius / 2) * 1.8}
+          visible={visible}
+          fontSize={radius}
+          fontStyle="bold"
+          align="center"
+          verticalAlign="middle"
+          width={radius * 2}
+          height={radius * 2}
+        />
+      )}
+    </Group>
   );
 };
 

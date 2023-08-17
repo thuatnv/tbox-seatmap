@@ -1,11 +1,11 @@
-import SeatMapComponent from "components/SeatMap/SeatMapComponent";
-import { initStageH, initStageW } from "components/SeatMap/constants";
+import SeatMap from "components/SeatMap";
 import useGetData from "hooks/useGetData";
 import { Data, Section } from "types/seatmap";
 import { ClickedSeatsData, Data as SectionData } from "types/section";
 
 const showingId = 23;
-const chosenId = 447;
+const chosenId = 448;
+
 const SampleApp = () => {
   const [data, error, loading] = useGetData<Data>(
     `/v1/events/showings/${showingId}/seatmap`
@@ -24,32 +24,42 @@ const SampleApp = () => {
   return (
     <div className="App dark-wrap">
       {data && (
-        <SeatMapComponent
-          w={700 || initStageW}
-          h={700 || initStageH}
-          data={data?.result}
-          chosenSectionId={chosenId}
-          chosenSectionData={sectionData?.result}
-          onSectionClick={(section: Section): void => {
-            console.log({ section });
-          }}
-          getSeatsData={(data: ClickedSeatsData): void => {
-            if (data && Object.keys(data).length) {
-              console.log(data);
-            }
-          }}
+        <SeatMap
+          w={700}
+          h={700}
           isDraggable
           isWheelable
           hasTools
+          data={data?.result}
+          chosenSectionId={chosenId}
+          chosenSectionData={sectionData?.result}
+          serviceLocation="mobile" // handle error TODO
+          onSectionClick={(section: Section): void => {
+            console.log({ section });
+          }}
+          onSeatsClick={(seats: ClickedSeatsData): void => {
+            console.log({ seats });
+          }}
+          onError={(err) => {
+            console.log(err);
+          }}
+          onPostMessage={(postMsg) => {
+            console.log({ postMsg });
+          }}
         />
       )}
       {data && (
-        <SeatMapComponent
+        <SeatMap
           w={200}
           h={200}
+          serviceLocation="web"
           data={data?.result}
-          chosenSectionId={chosenId}
+          
           isMinimap
+          chosenSectionId={chosenId}
+          onError={(err) => {
+            console.log(err);
+          }}
         />
       )}
     </div>
@@ -57,4 +67,3 @@ const SampleApp = () => {
 };
 
 export default SampleApp;
-
