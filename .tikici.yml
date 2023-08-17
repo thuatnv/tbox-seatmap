@@ -11,23 +11,23 @@ credentials:
     - NPM_LOCAL_REGISTRY_ACCESS_TOKEN
     
 jobs:
-  build_docker:
-    steps:
-      - build_image:
-          dockerfile: Dockerfile
-          build_args: '--build-arg NPM_TOKEN=${NPM_LOCAL_REGISTRY_ACCESS_TOKEN} --build-arg GITHUB_TOKEN=${GITHUB_PERSONAL_ACCESS_TOKEN}'
-          buildkit: true
-  publish_docker:
-    steps:
-      - push_image
-  deploy_dev:
-    steps:
-      - deploy_dev:
-          cluster: dev
-          namespace: ticketbox
-          workload: tbox-seatmap
-          argocd_pipeline: generic-v2
-          deployment_config: dev
+  # build_docker:
+  #   steps:
+  #     - build_image:
+  #         dockerfile: Dockerfile
+  #         build_args: '--build-arg NPM_TOKEN=${NPM_LOCAL_REGISTRY_ACCESS_TOKEN} --build-arg GITHUB_TOKEN=${GITHUB_PERSONAL_ACCESS_TOKEN}'
+  #         buildkit: true
+  # publish_docker:
+  #   steps:
+  #     - push_image
+  # deploy_dev:
+  #   steps:
+  #     - deploy_dev:
+  #         cluster: dev
+  #         namespace: ticketbox
+  #         workload: tbox-seatmap
+  #         argocd_pipeline: generic-v2
+  #         deployment_config: dev
   # deploy_prod:
   #   steps:
   #     - deploy_production:
