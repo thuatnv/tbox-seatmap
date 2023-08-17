@@ -4,7 +4,7 @@ import { Data, Section } from "types/seatmap";
 import { ClickedSeatsData, Data as SectionData } from "types/section";
 
 const showingId = 23;
-const chosenId = 443;
+const chosenId = 448;
 
 const SampleApp = () => {
   const [data, error, loading] = useGetData<Data>(

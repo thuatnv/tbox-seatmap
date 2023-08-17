@@ -20,29 +20,24 @@ import Seat from "components/Seat";
 /* manual: others */
 import { extractWHFromViewBox } from "utils";
 import { maxScale, minScale, scaleBy } from "./constants";
-import {
-  createError,
-  handleChainActions,
-  handleOnWheel,
-  handleResetRefs,
-} from "./helpers";
+import { handleChainActions, handleOnWheel, handleResetRefs } from "./helpers";
 import { SeatmapWrapper } from "./style";
 
 /* component types */
 type SeatmapProps = {
-  w: number;
-  h: number;
-  data: Result;
+  w?: number;
+  h?: number;
+  data?: Result;
+  isMinimap?: boolean;
   isWheelable?: boolean;
   isDraggable?: boolean;
-  isMinimap?: boolean;
   hasTools?: boolean;
   hasSeatNumbers?: boolean;
   chosenSectionId?: number;
   chosenSectionData?: SectionResult;
   onSectionClick?: (arg0: Section) => void;
   onSeatsClick?: (arg0: ClickedSeatsData) => void;
-  onError?: (arg0: string) => void;
+  onError?: (arg0: Record<string, string | number> | undefined) => void;
 };
 type ResetTrackings = Record<string, Partial<IRect>>;
 
@@ -52,9 +47,9 @@ const SeatMap: React.FC<SeatmapProps> = ({
   w = 0,
   h = 0,
   data = undefined,
+  isMinimap = false,
   isWheelable = false,
   isDraggable = false,
-  isMinimap = false,
   hasTools = false,
   hasSeatNumbers = true,
   chosenSectionId = 0,
@@ -71,15 +66,21 @@ const SeatMap: React.FC<SeatmapProps> = ({
   const [resetTrackings, setResetTrackings] = useState<ResetTrackings>({});
   const [shouldReset, setShouldReset] = useState<boolean>(false);
   const [scale, setScale] = useState<number>(0);
-  const [error, setError] = useState<string>("");
+  const [isInitSectionDone, setInitSectionDone] = useState<boolean>(false);
+
+  // error states
   const [hasError, setHasError] = useState<boolean>(false);
   const [isInitErrorCheck, setInitErrorCheck] = useState<boolean>(false);
+  const [errors, setErrors] = useState<
+    Record<string, string | number> | undefined
+  >(undefined);
 
   // refs
   const stageRef = useRef<StageType>(null);
   const layerRef = useRef<LayerType>(null);
   const groupRef = useRef<GroupType>(null);
   const chosenGroupRef = useRef<GroupType>(null);
+  const errPrefix = isMinimap ? "MINI-MAP" : "NORMAL-MAP";
 
   // methods
   const handleInitChosenSection = useCallback(() => {
@@ -115,9 +116,12 @@ const SeatMap: React.FC<SeatmapProps> = ({
         }
       }
     } catch (error) {
-      setError(createError(error));
+      setErrors({
+        code: 1001,
+        message: `[ERROR][${errPrefix}][handleInitChosenSection]: ${error}`,
+      });
     }
-  }, [isMinimap, stageCenter]);
+  }, [errPrefix, isMinimap, stageCenter]);
   const handleBackToInitState = useCallback(() => {
     try {
       const stage = stageRef.current;
@@ -154,23 +158,30 @@ const SeatMap: React.FC<SeatmapProps> = ({
         setShouldReset(false);
       }
     } catch (error) {
-      setError(createError(error));
+      setErrors({
+        code: 1001,
+        message: `[ERROR][${errPrefix}][handleBackToInitState]: ${error}`,
+      });
     }
-  }, []);
+  }, [errPrefix]);
   const handleReset = useCallback(() => {
     try {
       handleChainActions(
         [
           () => setResetDone(false),
+          () => setInitSectionDone(false),
           handleBackToInitState,
           () => setResetDone(true),
         ],
         300
       );
     } catch (error) {
-      setError(createError(error));
+      setErrors({
+        code: 1001,
+        message: `[ERROR][${errPrefix}][handleReset]: ${error}`,
+      });
     }
-  }, [handleBackToInitState]);
+  }, [errPrefix, handleBackToInitState]);
   const checkIfNeedReset = useCallback(() => {
     try {
       const stage = stageRef.current;
@@ -191,9 +202,12 @@ const SeatMap: React.FC<SeatmapProps> = ({
         }
       }
     } catch (error) {
-      setError(createError(error));
+      setErrors({
+        code: 1001,
+        message: `[ERROR][${errPrefix}][handleReset]: ${error}`,
+      });
     }
-  }, [resetTrackings]);
+  }, [errPrefix, resetTrackings]);
   const handleZoom = useCallback(
     (type: "out" | "in") => {
       try {
@@ -206,10 +220,13 @@ const SeatMap: React.FC<SeatmapProps> = ({
           ]);
         }
       } catch (error) {
-        setError(createError(error));
+        setErrors({
+          code: 1001,
+          message: `[ERROR][${errPrefix}][handleZoom]: ${error}`,
+        });
       }
     },
-    [scale, checkIfNeedReset]
+    [scale, checkIfNeedReset, errPrefix]
   );
   const handleSeatClickData = ({
     seatId,
@@ -227,20 +244,26 @@ const SeatMap: React.FC<SeatmapProps> = ({
         selectedSeats = { ...selectedSeatsCopy };
       }
     } catch (error) {
-      setError(createError(error));
+      setErrors({
+        code: 1001,
+        message: `[ERROR][${errPrefix}][handleSeatClickData]: ${error}`,
+      });
     }
   };
 
   // event handlers
   const onStageWheel = (e: KonvaEventObject<WheelEvent>) => {
     try {
-      if (!isWheelable) return;
+      if (!isWheelable || isMinimap) return;
       handleChainActions([
         () => handleOnWheel(e, stageRef),
         () => setScale(layerRef?.current?.scaleX() as number),
       ]);
     } catch (error) {
-      setError(createError(error));
+      setErrors({
+        code: 1002,
+        message: `[ERROR][${errPrefix}][onStageWheel]: ${error}`,
+      });
     }
   };
   const onSectionMouseEnter = (e: KonvaEventObject<MouseEvent>) => {
@@ -249,7 +272,10 @@ const SeatMap: React.FC<SeatmapProps> = ({
       const container = e.target?.getStage()?.container();
       if (container) container.style.cursor = "pointer";
     } catch (error) {
-      setError(createError(error));
+      setErrors({
+        code: 1002,
+        message: `[ERROR][${errPrefix}][onSectionMouseEnter]: ${error}`,
+      });
     }
   };
   const onSectionMouseLeave = (e: KonvaEventObject<MouseEvent>) => {
@@ -258,24 +284,30 @@ const SeatMap: React.FC<SeatmapProps> = ({
       const container = e.target?.getStage()?.container();
       if (container) container.style.cursor = "";
     } catch (error) {
-      setError(createError(error));
+      setErrors({
+        code: 1002,
+        message: `[ERROR][${errPrefix}][onSectionMouseLeave]: ${error}`,
+      });
     }
   };
 
   // effects
   useEffect(() => {
-    const errPrefix = isMinimap ? "TYPE_MINI" : "TYPE_NORMAL";
     const hasNoSeatmapData = !data || Object.keys(data).length <= 0;
     if (hasNoSeatmapData) {
-      setError(createError(`[${errPrefix}]: Must provide data attribute!`));
+      setErrors({
+        code: 1003,
+        message: `[ERROR][${errPrefix}][PROPS]: 'data' is compulsory!`,
+      });
       return;
     }
 
     const hasNoWidthHeight = w <= 0 || h <= 0;
     if (hasNoWidthHeight) {
-      setError(
-        createError(`[${errPrefix}]: Must provide width AND height attributes!`)
-      );
+      setErrors({
+        code: 1003,
+        message: `[ERROR][${errPrefix}][PROPS]: 'width' AND 'height' are compulsory!`,
+      });
       return;
     }
 
@@ -289,38 +321,39 @@ const SeatMap: React.FC<SeatmapProps> = ({
       chosenSectionData &&
       Object.keys(chosenSectionData).length;
     if (hasSectionIdButNoData) {
-      setError(
-        createError(
-          `[${errPrefix}]: Must provide valid chosenSectionData when chosenSectionId exists!`
-        )
-      );
+      setErrors({
+        code: 1003,
+        message: `[ERROR][${errPrefix}][PROPS]: Must provide 'chosenSectionData' if 'chosenSectionId' exists!`,
+      });
       return;
     }
     if (hasSectionDataButNoId) {
-      setError(
-        createError(
-          `[${errPrefix}]: Must provide valid chosenSectionId when chosenSectionData exists!`
-        )
-      );
+      setErrors({
+        code: 1003,
+        message: `[ERROR][${errPrefix}][PROPS]: Must provide 'chosenSectionId' if 'chosenSectionData' exists!`,
+      });
       return;
     }
     const minimapButNoSectionId = isMinimap && chosenSectionId === 0;
     if (minimapButNoSectionId) {
-      setError(
-        createError(`[${errPrefix}]: Must provide chosenSectionId for minimap!`)
-      );
+      setErrors({
+        code: 1003,
+        message: `[ERROR][${errPrefix}][PROPS]: Must provide 'chosenSectionId' if 'isMinimap' is true!`,
+      });
     }
 
     setInitErrorCheck(true);
-  }, [chosenSectionData, chosenSectionId, data, h, isMinimap, w]);
+  }, [chosenSectionData, chosenSectionId, data, errPrefix, h, isMinimap, w]);
   useEffect(() => {
-    if (error) {
-      onError(error);
-      setHasError(true);
-      return;
+    if (!hasError) {
+      if (errors && Object.keys(errors).length) {
+        onError(errors);
+        setHasError(true);
+        return;
+      }
+      setHasError(false);
     }
-    setHasError(false);
-  }, [error, hasError, isResetDone, onError]);
+  }, [errors, hasError, onError]);
   useEffect(() => {
     try {
       if (data && Object.keys(data).length && data.viewbox) {
@@ -334,9 +367,12 @@ const SeatMap: React.FC<SeatmapProps> = ({
         }
       }
     } catch (error) {
-      setError(createError(error));
+      setErrors({
+        code: 1004,
+        message: `[ERROR][${errPrefix}][EFFECT][stageCenter, groupDimensions]: ${error}`,
+      });
     }
-  }, [data]);
+  }, [data, errPrefix]);
   useEffect(() => {
     try {
       if (groupDimensions && Object.keys(groupDimensions).length) {
@@ -349,16 +385,24 @@ const SeatMap: React.FC<SeatmapProps> = ({
         }
       }
     } catch (error) {
-      setError(createError(error));
+      setErrors({
+        code: 1004,
+        message: `[ERROR][${errPrefix}][EFFECT][groupCenter]: ${error}`,
+      });
     }
-  }, [groupDimensions]);
+  }, [errPrefix, groupDimensions]);
   useEffect(() => {
     const hasStageCenter = stageCenter && Object.keys(stageCenter).length;
     const hasGroupCenter = groupCenter && Object.keys(groupCenter).length;
     if (hasStageCenter && hasGroupCenter) handleReset();
   }, [stageCenter, groupCenter, handleReset]);
   useEffect(() => {
-    if (isResetDone && chosenSectionId !== 0) handleInitChosenSection();
+    if (isResetDone && chosenSectionId !== 0) {
+      handleChainActions(
+        [handleInitChosenSection, () => setInitSectionDone(true)],
+        200
+      );
+    }
   }, [chosenSectionId, handleInitChosenSection, isResetDone]);
   useEffect(() => {
     if (chosenSectionId !== 0) selectedSeats = {};
@@ -369,7 +413,7 @@ const SeatMap: React.FC<SeatmapProps> = ({
     <SeatmapWrapper style={{ opacity: isInitErrorCheck && !hasError ? 1 : 0 }}>
       <div id="stage-container">
         {/* BUTTONS */}
-        {hasTools && (
+        {hasTools && !isMinimap && (
           <div id="btns-container">
             <Button onClick={() => handleZoom("in")}>
               <PlusIcon />
@@ -389,7 +433,7 @@ const SeatMap: React.FC<SeatmapProps> = ({
           width={w}
           height={h}
           ref={stageRef}
-          draggable={isDraggable}
+          draggable={isDraggable && !isMinimap}
           onDragEnd={checkIfNeedReset}
           visible={isInitErrorCheck && !hasError}
           onWheel={(e) => {
@@ -406,7 +450,7 @@ const SeatMap: React.FC<SeatmapProps> = ({
             id="seatmap-layer"
             ref={layerRef}
             scale={{ x: scale, y: scale }}
-            draggable={isDraggable}
+            draggable={isDraggable && !isMinimap}
             onDragEnd={checkIfNeedReset}
           >
             <Group
@@ -432,6 +476,13 @@ const SeatMap: React.FC<SeatmapProps> = ({
 
                 return (
                   <Group
+                    visible={
+                      chosenSectionId !== 0
+                        ? isMinimap
+                          ? true
+                          : isInitSectionDone
+                        : true
+                    }
                     key={sectionId}
                     ref={sectionId === chosenSectionId ? chosenGroupRef : null}
                     width={attribute?.width}
@@ -453,11 +504,13 @@ const SeatMap: React.FC<SeatmapProps> = ({
                         onMouseLeave: onSectionMouseLeave,
                         onClick: () => {
                           try {
-                            if (section && Object.keys(section).length) {
+                            if (section && Object.keys(section).length)
                               onSectionClick(section);
-                            }
                           } catch (error) {
-                            setError(createError(error));
+                            setErrors({
+                              code: 1002,
+                              message: `[ERROR][${errPrefix}][INNER][onSectionClick]: ${error}`,
+                            });
                           }
                         },
                       };
@@ -507,13 +560,13 @@ const SeatMap: React.FC<SeatmapProps> = ({
                         } = seat;
                         return (
                           <Seat
-                            key={`seat-${uuidv4()}`}
-                            id={`seatId-${seatId}`}
-                            name={seatName}
                             x={x}
                             y={y}
+                            id={`seatId-${seatId}`}
+                            key={`seatKey-${uuidv4()}`}
+                            name={seatName}
                             showName={hasSeatNumbers}
-                            visible={isResetDone}
+                            visible={isResetDone && !isMinimap}
                             initStatus={status}
                             onClick={(e) => {
                               try {
@@ -537,7 +590,10 @@ const SeatMap: React.FC<SeatmapProps> = ({
                                   () => onSeatsClick(selectedSeats),
                                 ]);
                               } catch (error) {
-                                setError(createError(error));
+                                setErrors({
+                                  code: 1002,
+                                  message: `[ERROR][${errPrefix}][INNER][onSeatsClick]: ${error}`,
+                                });
                               }
                             }}
                           />
