@@ -247,7 +247,7 @@ const SeatMap: React.FC<SeatmapProps> = ({
   );
   const handlePostMessage = useCallback(
     (
-      type: "onSectionClick" | "onSeatsClick" | "onError",
+      type: "onSectionClick" | "onSeatClick" | "onError",
       data: PostMessageData
     ) => {
       try {
@@ -256,14 +256,14 @@ const SeatMap: React.FC<SeatmapProps> = ({
           case "onSectionClick":
             onPostMessage(JSON.stringify({ type: "onSectionClick", data }));
             return;
-          // case "onSeatsClick":
-          //   onPostMessage(
-          //     JSON.stringify({
-          //       type: "onSeatsClick",
-          //       data: Object.values(selectedSeats),
-          //     })
-          //   );
-          //   return;
+          case "onSeatClick":
+            onPostMessage(
+              JSON.stringify({
+                type: "onSeatClick",
+                data,
+              })
+            );
+            return;
           default:
             onPostMessage(JSON.stringify({ type: "onError", data: errors }));
             return;
@@ -610,6 +610,9 @@ const SeatMap: React.FC<SeatmapProps> = ({
                               showName={hasSeatNumbers}
                               visible={isResetDone && !isMinimap}
                               initStatus={status}
+                              onClick={() =>
+                                handlePostMessage("onSeatClick", seatDataPack)
+                              }
                               onSelectSeat={onSelectSeat}
                               onDeselectSeat={onDeselectSeat}
                               isSelected={

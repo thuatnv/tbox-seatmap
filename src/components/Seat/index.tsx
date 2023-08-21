@@ -46,11 +46,12 @@ const Seat: React.FC<Partial<SeatProps>> = ({
   radius = 4.5,
   strokeWidth = 1,
   initStatus = 1,
+  onClick = () => {},
 
-  onSelectSeat,
-  onDeselectSeat,
-  isSelected,
-  seatDataPack,
+  onSelectSeat = () => {},
+  onDeselectSeat = () => {},
+  isSelected = false,
+  seatDataPack = {},
 }) => {
   // states
   const [currentStatus, setCurrentStatus] = useState<number>(initStatus);
@@ -66,7 +67,7 @@ const Seat: React.FC<Partial<SeatProps>> = ({
     const container = e.target?.getStage()?.container();
     if (container) container.style.cursor = "";
   };
-  const onSeatClickInside = () => {
+  const onSeatClickInside = (e: KonvaEventObject<MouseEvent>) => {
     if (!(currentStatus === 1 || currentStatus === 6)) return;
     setCurrentStatus((prev) => (prev === 1 ? 6 : 1));
     if (isSelected) {
@@ -74,6 +75,7 @@ const Seat: React.FC<Partial<SeatProps>> = ({
     } else {
       onSelectSeat && onSelectSeat(name, seatDataPack);
     }
+    onClick && onClick(e);
   };
 
   // render

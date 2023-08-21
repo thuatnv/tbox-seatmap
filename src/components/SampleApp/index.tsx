@@ -71,9 +71,13 @@ const SampleApp = () => {
           chosenSectionId={chosenId}
           chosenSectionData={sectionData?.result}
           serviceLocation="mobile" // handle error TODO
-          selectedSeatsIds={selectedSeatsIds}
-          onSelectSeat={handleSelect}
-          onDeselectSeat={handleDeselect}
+          selectedSeatsIds={selectedSeatsIds} // handle error TODO
+          onSelectSeat={handleSelect} // handle error TODO
+          onDeselectSeat={handleDeselect} // handle error TODO
+          // mobile
+          onPostMessage={(msg) => {
+            console.log({ msg });
+          }}
         />
       )}
       {data && (
