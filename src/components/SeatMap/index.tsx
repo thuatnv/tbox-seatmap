@@ -41,10 +41,17 @@ type SeatmapProps = {
   chosenSectionId?: number;
   chosenSectionData?: SectionResult;
   serviceLocation: "web" | "mobile" | "admin";
+
   onSectionClick?: (arg0: Section) => void;
-  onSeatClick?: (arg0: ClickedSeatData) => void;
   onError?: (arg0: Record<string, string | number> | undefined) => void;
   onPostMessage?: (arg0: string) => void;
+
+  onSelectSeat?: (
+    arg0?: number,
+    arg1?: Record<string, string | number | boolean>
+  ) => void;
+  onDeselectSeat?: (arg0?: number) => void;
+  selectedSeatsIds?: number[];
 };
 type ResetTrackings = Record<string, Partial<IRect>>;
 
@@ -60,10 +67,14 @@ const SeatMap: React.FC<SeatmapProps> = ({
   chosenSectionId = 0,
   chosenSectionData = undefined,
   serviceLocation = "web",
+
   onSectionClick = () => {},
-  onSeatClick = () => {},
-  onError = () => {},
   onPostMessage = () => {},
+  onError = () => {},
+
+  onSelectSeat = () => {},
+  onDeselectSeat = () => {},
+  selectedSeatsIds = [],
 }) => {
   // states
   const [groupDimensions, setGroupDimensions] = useState<Partial<IRect>>({});
@@ -580,48 +591,43 @@ const SeatMap: React.FC<SeatmapProps> = ({
                           position: seatPosition,
                         } = seat;
 
-                        const _handleInnerSeatClick = (
-                          e: KonvaEventObject<MouseEvent | Event>
-                        ) => {
-                          try {
-                            e.evt.preventDefault();
-                            const seatDataPack = {
-                              sectionId,
-                              sectionIsReserveSeat,
-                              sectionSeatMapId,
-                              rowId,
-                              rowName,
-                              rowStatus,
-                              seatId,
-                              seatName,
-                              seatPosition,
-                            };
-                            handleChainActions([
-                              () => onSeatClick(seatDataPack),
-                              () =>
-                                handlePostMessage("onSeatClick", seatDataPack),
-                            ]);
-                          } catch (error) {
-                            setErrors({
-                              code: 1002,
-                              message: `[ERROR][${ERRORS[1002]}][onSeatClick]: ${error}`,
-                            });
-                          }
+                        const seatDataPack = {
+                          sectionId,
+                          sectionIsReserveSeat,
+                          sectionSeatMapId,
+                          rowId,
+                          rowName,
+                          rowStatus,
+                          seatId,
+                          seatName,
+                          seatPosition,
                         };
-                        return (
-                          <Seat
-                            x={x}
-                            y={y}
-                            id={`seatId-${seatId}`}
-                            key={`seatKey-${uuidv4()}`}
-                            name={seatName}
-                            showName={hasSeatNumbers}
-                            visible={isResetDone && !isMinimap}
-                            initStatus={status}
-                            onClick={_handleInnerSeatClick}
-                            onTap={_handleInnerSeatClick}
-                          />
-                        );
+
+                        if (seat)
+                          return (
+                            <Seat
+                              x={x}
+                              y={y}
+                              id={seatId}
+                              name={seatId}
+                              key={`seatKey-${uuidv4()}`}
+                              displayName={seatName}
+                              showName={hasSeatNumbers}
+                              visible={isResetDone && !isMinimap}
+                              initStatus={status}
+                              onClick={() =>
+                                handlePostMessage("onSeatClick", seatDataPack)
+                              }
+                              onSelectSeat={onSelectSeat}
+                              onDeselectSeat={onDeselectSeat}
+                              isSelected={
+                                selectedSeatsIds
+                                  ? selectedSeatsIds.indexOf(seatId) >= 0
+                                  : false
+                              }
+                              seatDataPack={seatDataPack}
+                            />
+                          );
                       });
                     })}
                   </Group>
