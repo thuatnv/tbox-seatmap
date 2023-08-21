@@ -1,7 +1,7 @@
 import SeatMap from "components/SeatMap";
 import useGetData from "hooks/useGetData";
 import { Data, Section } from "types/seatmap";
-import { ClickedSeatData, Data as SectionData } from "types/section";
+import { Data as SectionData } from "types/section";
 
 const showingId = 23;
 const chosenId = 448;
