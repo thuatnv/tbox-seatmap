@@ -1,7 +1,7 @@
 import SeatMap from "components/SeatMap";
 import useGetData from "hooks/useGetData";
 import { Data, Section } from "types/seatmap";
-import { ClickedSeatsData, Data as SectionData } from "types/section";
+import { ClickedSeatData, Data as SectionData } from "types/section";
 
 const showingId = 23;
 const chosenId = 448;
@@ -25,8 +25,8 @@ const SampleApp = () => {
     <div className="App dark-wrap">
       {data && (
         <SeatMap
-          w={700}
-          h={700}
+          w={375}
+          h={450}
           isDraggable
           isWheelable
           hasTools
@@ -37,8 +37,8 @@ const SampleApp = () => {
           onSectionClick={(section: Section): void => {
             console.log({ section });
           }}
-          onSeatsClick={(seats: ClickedSeatsData): void => {
-            console.log({ seats });
+          onSeatClick={(seat): void => {
+            console.log({ seat });
           }}
           onError={(err) => {
             console.log(err);
@@ -50,11 +50,10 @@ const SampleApp = () => {
       )}
       {data && (
         <SeatMap
-          w={200}
-          h={200}
+          w={150}
+          h={150}
           serviceLocation="web"
           data={data?.result}
-          
           isMinimap
           chosenSectionId={chosenId}
           onError={(err) => {

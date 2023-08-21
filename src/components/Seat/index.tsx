@@ -1,5 +1,5 @@
 import { KonvaEventObject } from "konva/lib/Node";
-import { useState, memo } from "react";
+import { useState } from "react";
 import { Circle, Group, Text } from "react-konva";
 import { getSeatStyles, seatStatusNumToStr } from "./helpers";
 
@@ -14,6 +14,7 @@ type SeatProps = {
   strokeWidth: number;
   initStatus: number;
   onClick?: (arg0: KonvaEventObject<MouseEvent>) => void;
+  onTap?: (arg0: KonvaEventObject<Event>) => void;
 };
 
 const Seat: React.FC<Partial<SeatProps>> = ({
@@ -27,6 +28,7 @@ const Seat: React.FC<Partial<SeatProps>> = ({
   strokeWidth = 1,
   initStatus = 1,
   onClick = () => {},
+  onTap = () => {},
 }) => {
   // states
   const [currentStatus, setCurrentStatus] = useState<number>(initStatus);
@@ -57,6 +59,10 @@ const Seat: React.FC<Partial<SeatProps>> = ({
         onSeatClickInside();
         onClick && onClick(e);
       }}
+      onTap={(e) => {
+        onSeatClickInside();
+        onTap && onTap(e);
+      }}
     >
       <Circle
         x={x}
@@ -84,4 +90,4 @@ const Seat: React.FC<Partial<SeatProps>> = ({
   );
 };
 
-export default memo(Seat);
+export default Seat;

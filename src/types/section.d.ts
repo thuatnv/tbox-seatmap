@@ -39,7 +39,4 @@ export interface Seat {
   y: number;
 }
 
-export type ClickedSeatsData = Record<
-  number,
-  Record<string, string | number | boolean>
->;
+export type ClickedSeatData = Record<string, string | number | boolean>;

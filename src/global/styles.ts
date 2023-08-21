@@ -44,6 +44,7 @@ const GlobalStyles = createGlobalStyle`
     display: flex;
     align-items: center;
     justify-content: center;
+    flex-wrap: wrap-reverse;
     color: #fff;
   }
 `;

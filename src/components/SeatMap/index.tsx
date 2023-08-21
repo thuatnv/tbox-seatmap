@@ -1,5 +1,5 @@
 /* libraries */
-import { useCallback, useEffect, useRef, useState, memo } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { Group, Layer, Path, Stage } from "react-konva";
 import { v4 as uuidv4 } from "uuid";
 /* types */
@@ -9,7 +9,7 @@ import { KonvaEventObject } from "konva/lib/Node";
 import { Stage as StageType } from "konva/lib/Stage";
 import { IRect } from "konva/lib/types";
 import { Result, Section } from "types/seatmap";
-import { ClickedSeatsData, Result as SectionResult } from "types/section";
+import { ClickedSeatData, Result as SectionResult } from "types/section";
 /* icons */
 import { ReactComponent as MinusIcon } from "resources/svg/icon-minus-green.svg";
 import { ReactComponent as PlusIcon } from "resources/svg/icon-plus-green.svg";
@@ -26,7 +26,7 @@ import { SeatmapWrapper } from "./style";
 /* component types */
 type PostMessageData =
   | Section
-  | ClickedSeatsData
+  | ClickedSeatData
   | Record<string, string | number>
   | undefined;
 type SeatmapProps = {
@@ -42,13 +42,12 @@ type SeatmapProps = {
   chosenSectionData?: SectionResult;
   serviceLocation: "web" | "mobile" | "admin";
   onSectionClick?: (arg0: Section) => void;
-  onSeatsClick?: (arg0: ClickedSeatsData) => void;
+  onSeatClick?: (arg0: ClickedSeatData) => void;
   onError?: (arg0: Record<string, string | number> | undefined) => void;
   onPostMessage?: (arg0: string) => void;
 };
 type ResetTrackings = Record<string, Partial<IRect>>;
 
-let selectedSeats: ClickedSeatsData = {};
 const SeatMap: React.FC<SeatmapProps> = ({
   w = 0,
   h = 0,
@@ -62,7 +61,7 @@ const SeatMap: React.FC<SeatmapProps> = ({
   chosenSectionData = undefined,
   serviceLocation = "web",
   onSectionClick = () => {},
-  onSeatsClick = () => {},
+  onSeatClick = () => {},
   onError = () => {},
   onPostMessage = () => {},
 }) => {
@@ -235,31 +234,9 @@ const SeatMap: React.FC<SeatmapProps> = ({
     },
     [scale, checkIfNeedReset]
   );
-  const handleSeatClickData = ({
-    seatId,
-    data,
-  }: {
-    seatId: number;
-    data: Record<string, string | number | boolean>;
-  }) => {
-    try {
-      if (!selectedSeats[seatId])
-        selectedSeats = { ...selectedSeats, [seatId]: data };
-      else {
-        const selectedSeatsCopy = { ...selectedSeats };
-        delete selectedSeatsCopy[seatId];
-        selectedSeats = { ...selectedSeatsCopy };
-      }
-    } catch (error) {
-      setErrors({
-        code: 1001,
-        message: `[ERROR][${ERRORS[1001]}][handleSeatClickData]: ${error}`,
-      });
-    }
-  };
   const handlePostMessage = useCallback(
     (
-      type: "onSectionClick" | "onSeatsClick" | "onError",
+      type: "onSectionClick" | "onSeatClick" | "onError",
       data: PostMessageData
     ) => {
       try {
@@ -268,11 +245,11 @@ const SeatMap: React.FC<SeatmapProps> = ({
           case "onSectionClick":
             onPostMessage(JSON.stringify({ type: "onSectionClick", data }));
             return;
-          case "onSeatsClick":
+          case "onSeatClick":
             onPostMessage(
               JSON.stringify({
-                type: "onSeatsClick",
-                data: Object.values(selectedSeats),
+                type: "onSeatClick",
+                data,
               })
             );
             return;
@@ -444,9 +421,6 @@ const SeatMap: React.FC<SeatmapProps> = ({
       );
     }
   }, [chosenSectionId, handleInitChosenSection, isResetDone]);
-  useEffect(() => {
-    if (chosenSectionId !== 0) selectedSeats = {};
-  }, [chosenSectionId]);
 
   // render
   return (
@@ -479,8 +453,9 @@ const SeatMap: React.FC<SeatmapProps> = ({
           onWheel={(e) => {
             /* STOP EVEMT AUTO CATCHING */
             e.evt.preventDefault();
-            e.evt.stopPropagation();
+            // e.evt.stopPropagation();
             /* STOP EVEMT AUTO CATCHING */
+
             if (!isResetDone) return;
             onStageWheel(e);
             checkIfNeedReset();
@@ -514,6 +489,21 @@ const SeatMap: React.FC<SeatmapProps> = ({
                   sectionId !== chosenSectionId;
                 if (hideSection) return <></>;
 
+                const _handleInnerSectionClick = () => {
+                  if (chosenSectionId !== 0) return;
+                  try {
+                    if (section && Object.keys(section).length) {
+                      onSectionClick(section);
+                      handlePostMessage("onSectionClick", section);
+                    }
+                  } catch (error) {
+                    setErrors({
+                      code: 1002,
+                      message: `[ERROR][${ERRORS[1002]}][onSectionClick]: ${error}`,
+                    });
+                  }
+                };
+
                 return (
                   <Group
                     visible={
@@ -527,6 +517,8 @@ const SeatMap: React.FC<SeatmapProps> = ({
                     ref={sectionId === chosenSectionId ? chosenGroupRef : null}
                     width={attribute?.width}
                     height={attribute?.height}
+                    onClick={_handleInnerSectionClick}
+                    onTap={_handleInnerSectionClick}
                   >
                     {/* SECTION ELEMENTS: BACKGROUND PATHS, ROW NAMES, ZONE NAMES{" "} */}
                     {elements?.map(({ data, fill, display }, idx) => {
@@ -542,19 +534,6 @@ const SeatMap: React.FC<SeatmapProps> = ({
                       const sectionEventsProps = {
                         onMouseEnter: onSectionMouseEnter,
                         onMouseLeave: onSectionMouseLeave,
-                        onClick: () => {
-                          try {
-                            if (section && Object.keys(section).length) {
-                              onSectionClick(section);
-                              handlePostMessage("onSectionClick", section);
-                            }
-                          } catch (error) {
-                            setErrors({
-                              code: 1002,
-                              message: `[ERROR][${ERRORS[1002]}][onSectionClick]: ${error}`,
-                            });
-                          }
-                        },
                       };
 
                       return isStage ? (
@@ -600,6 +579,35 @@ const SeatMap: React.FC<SeatmapProps> = ({
                           name: seatName,
                           position: seatPosition,
                         } = seat;
+
+                        const _handleInnerSeatClick = (
+                          e: KonvaEventObject<MouseEvent | Event>
+                        ) => {
+                          try {
+                            e.evt.preventDefault();
+                            const seatDataPack = {
+                              sectionId,
+                              sectionIsReserveSeat,
+                              sectionSeatMapId,
+                              rowId,
+                              rowName,
+                              rowStatus,
+                              seatId,
+                              seatName,
+                              seatPosition,
+                            };
+                            handleChainActions([
+                              () => onSeatClick(seatDataPack),
+                              () =>
+                                handlePostMessage("onSeatClick", seatDataPack),
+                            ]);
+                          } catch (error) {
+                            setErrors({
+                              code: 1002,
+                              message: `[ERROR][${ERRORS[1002]}][onSeatClick]: ${error}`,
+                            });
+                          }
+                        };
                         return (
                           <Seat
                             x={x}
@@ -610,40 +618,8 @@ const SeatMap: React.FC<SeatmapProps> = ({
                             showName={hasSeatNumbers}
                             visible={isResetDone && !isMinimap}
                             initStatus={status}
-                            onClick={(e) => {
-                              try {
-                                e.evt.preventDefault();
-                                const seatDataPack = {
-                                  sectionId,
-                                  sectionIsReserveSeat,
-                                  sectionSeatMapId,
-                                  rowId,
-                                  rowName,
-                                  rowStatus,
-                                  seatId,
-                                  seatName,
-                                  seatPosition,
-                                };
-                                handleChainActions([
-                                  () =>
-                                    handleSeatClickData({
-                                      seatId,
-                                      data: seatDataPack,
-                                    }),
-                                  () => onSeatsClick(selectedSeats),
-                                  () =>
-                                    handlePostMessage(
-                                      "onSeatsClick",
-                                      selectedSeats
-                                    ),
-                                ]);
-                              } catch (error) {
-                                setErrors({
-                                  code: 1002,
-                                  message: `[ERROR][${ERRORS[1002]}][onSeatsClick]: ${error}`,
-                                });
-                              }
-                            }}
+                            onClick={_handleInnerSeatClick}
+                            onTap={_handleInnerSeatClick}
                           />
                         );
                       });
@@ -659,4 +635,4 @@ const SeatMap: React.FC<SeatmapProps> = ({
   );
 };
 
-export default memo(SeatMap);
+export default SeatMap;
