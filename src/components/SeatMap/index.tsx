@@ -41,14 +41,20 @@ type SeatmapProps = {
   chosenSectionId?: number;
   chosenSectionData?: SectionResult;
   serviceLocation: "web" | "mobile" | "admin";
+
   onSectionClick?: (arg0: Section) => void;
-  onSeatsClick?: (arg0: ClickedSeatsData) => void;
   onError?: (arg0: Record<string, string | number> | undefined) => void;
   onPostMessage?: (arg0: string) => void;
+
+  onSelectSeat?: (
+    arg0?: number,
+    arg1?: Record<string, string | number | boolean>
+  ) => void;
+  onDeselectSeat?: (arg0?: number) => void;
+  selectedSeatsIds?: number[];
 };
 type ResetTrackings = Record<string, Partial<IRect>>;
 
-let selectedSeats: ClickedSeatsData = {};
 const SeatMap: React.FC<SeatmapProps> = ({
   w = 0,
   h = 0,
@@ -61,10 +67,14 @@ const SeatMap: React.FC<SeatmapProps> = ({
   chosenSectionId = 0,
   chosenSectionData = undefined,
   serviceLocation = "web",
+
   onSectionClick = () => {},
-  onSeatsClick = () => {},
-  onError = () => {},
   onPostMessage = () => {},
+  onError = () => {},
+
+  onSelectSeat,
+  onDeselectSeat = () => {},
+  selectedSeatsIds,
 }) => {
   // states
   const [groupDimensions, setGroupDimensions] = useState<Partial<IRect>>({});
@@ -235,28 +245,6 @@ const SeatMap: React.FC<SeatmapProps> = ({
     },
     [scale, checkIfNeedReset]
   );
-  const handleSeatClickData = ({
-    seatId,
-    data,
-  }: {
-    seatId: number;
-    data: Record<string, string | number | boolean>;
-  }) => {
-    try {
-      if (!selectedSeats[seatId])
-        selectedSeats = { ...selectedSeats, [seatId]: data };
-      else {
-        const selectedSeatsCopy = { ...selectedSeats };
-        delete selectedSeatsCopy[seatId];
-        selectedSeats = { ...selectedSeatsCopy };
-      }
-    } catch (error) {
-      setErrors({
-        code: 1001,
-        message: `[ERROR][${ERRORS[1001]}][handleSeatClickData]: ${error}`,
-      });
-    }
-  };
   const handlePostMessage = useCallback(
     (
       type: "onSectionClick" | "onSeatsClick" | "onError",
@@ -268,14 +256,14 @@ const SeatMap: React.FC<SeatmapProps> = ({
           case "onSectionClick":
             onPostMessage(JSON.stringify({ type: "onSectionClick", data }));
             return;
-          case "onSeatsClick":
-            onPostMessage(
-              JSON.stringify({
-                type: "onSeatsClick",
-                data: Object.values(selectedSeats),
-              })
-            );
-            return;
+          // case "onSeatsClick":
+          //   onPostMessage(
+          //     JSON.stringify({
+          //       type: "onSeatsClick",
+          //       data: Object.values(selectedSeats),
+          //     })
+          //   );
+          //   return;
           default:
             onPostMessage(JSON.stringify({ type: "onError", data: errors }));
             return;
@@ -444,9 +432,6 @@ const SeatMap: React.FC<SeatmapProps> = ({
       );
     }
   }, [chosenSectionId, handleInitChosenSection, isResetDone]);
-  useEffect(() => {
-    if (chosenSectionId !== 0) selectedSeats = {};
-  }, [chosenSectionId]);
 
   // render
   return (
@@ -600,52 +585,41 @@ const SeatMap: React.FC<SeatmapProps> = ({
                           name: seatName,
                           position: seatPosition,
                         } = seat;
-                        return (
-                          <Seat
-                            x={x}
-                            y={y}
-                            id={`seatId-${seatId}`}
-                            key={`seatKey-${uuidv4()}`}
-                            name={seatName}
-                            showName={hasSeatNumbers}
-                            visible={isResetDone && !isMinimap}
-                            initStatus={status}
-                            onClick={(e) => {
-                              try {
-                                e.evt.preventDefault();
-                                const seatDataPack = {
-                                  sectionId,
-                                  sectionIsReserveSeat,
-                                  sectionSeatMapId,
-                                  rowId,
-                                  rowName,
-                                  rowStatus,
-                                  seatId,
-                                  seatName,
-                                  seatPosition,
-                                };
-                                handleChainActions([
-                                  () =>
-                                    handleSeatClickData({
-                                      seatId,
-                                      data: seatDataPack,
-                                    }),
-                                  () => onSeatsClick(selectedSeats),
-                                  () =>
-                                    handlePostMessage(
-                                      "onSeatsClick",
-                                      selectedSeats
-                                    ),
-                                ]);
-                              } catch (error) {
-                                setErrors({
-                                  code: 1002,
-                                  message: `[ERROR][${ERRORS[1002]}][onSeatsClick]: ${error}`,
-                                });
+
+                        const seatDataPack = {
+                          sectionId,
+                          sectionIsReserveSeat,
+                          sectionSeatMapId,
+                          rowId,
+                          rowName,
+                          rowStatus,
+                          seatId,
+                          seatName,
+                          seatPosition,
+                        };
+
+                        if (seat)
+                          return (
+                            <Seat
+                              x={x}
+                              y={y}
+                              id={seatId}
+                              name={seatId}
+                              key={`seatKey-${uuidv4()}`}
+                              displayName={seatName}
+                              showName={hasSeatNumbers}
+                              visible={isResetDone && !isMinimap}
+                              initStatus={status}
+                              onSelectSeat={onSelectSeat}
+                              onDeselectSeat={onDeselectSeat}
+                              isSelected={
+                                selectedSeatsIds
+                                  ? selectedSeatsIds.indexOf(seatId) >= 0
+                                  : false
                               }
-                            }}
-                          />
-                        );
+                              seatDataPack={seatDataPack}
+                            />
+                          );
                       });
                     })}
                   </Group>

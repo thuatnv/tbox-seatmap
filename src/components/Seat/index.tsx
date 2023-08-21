@@ -4,8 +4,9 @@ import { Circle, Group, Text } from "react-konva";
 import { getSeatStyles, seatStatusNumToStr } from "./helpers";
 
 type SeatProps = {
-  id: string;
-  name: string;
+  id: number;
+  name: number;
+  displayName: string;
   visible: boolean;
   showName: boolean;
   x: number;
@@ -14,11 +15,30 @@ type SeatProps = {
   strokeWidth: number;
   initStatus: number;
   onClick?: (arg0: KonvaEventObject<MouseEvent>) => void;
+
+  onSelectSeat: (
+    arg0?: number,
+    arg1?: Record<string, string | number | boolean>
+  ) => void;
+  onDeselectSeat: (arg0?: number) => void;
+  isSelected: boolean;
+  seatDataPack: Record<string, string | number | boolean>;
+};
+
+const getStyles = (initStatus: number, isSelected: boolean | undefined) => {
+  if (!(initStatus === 1 || initStatus === 6))
+    return getSeatStyles(seatStatusNumToStr(initStatus)) as object;
+  if (isSelected) {
+    return getSeatStyles(seatStatusNumToStr(6)) as object;
+  } else {
+    return getSeatStyles(seatStatusNumToStr(1)) as object;
+  }
 };
 
 const Seat: React.FC<Partial<SeatProps>> = ({
-  id = "",
-  name = "",
+  id = 0,
+  name = 0,
+  displayName = "",
   visible = true,
   showName = true,
   x = 0,
@@ -26,7 +46,11 @@ const Seat: React.FC<Partial<SeatProps>> = ({
   radius = 4.5,
   strokeWidth = 1,
   initStatus = 1,
-  onClick = () => {},
+
+  onSelectSeat,
+  onDeselectSeat,
+  isSelected,
+  seatDataPack,
 }) => {
   // states
   const [currentStatus, setCurrentStatus] = useState<number>(initStatus);
@@ -45,18 +69,21 @@ const Seat: React.FC<Partial<SeatProps>> = ({
   const onSeatClickInside = () => {
     if (!(currentStatus === 1 || currentStatus === 6)) return;
     setCurrentStatus((prev) => (prev === 1 ? 6 : 1));
+    if (isSelected) {
+      onDeselectSeat && onDeselectSeat(name);
+    } else {
+      onSelectSeat && onSelectSeat(name, seatDataPack);
+    }
   };
 
   // render
   return (
     <Group
-      id={id}
+      id={`${id}`}
       onMouseEnter={onSeatMouseEnter}
       onMouseLeave={onSeatMouseLeave}
-      onClick={(e) => {
-        onSeatClickInside();
-        onClick && onClick(e);
-      }}
+      onClick={onSeatClickInside}
+      onTap={onSeatClickInside}
     >
       <Circle
         x={x}
@@ -64,11 +91,11 @@ const Seat: React.FC<Partial<SeatProps>> = ({
         visible={visible}
         radius={radius}
         strokeWidth={strokeWidth}
-        {...(getSeatStyles(seatStatusNumToStr(currentStatus)) as object)}
+        {...getStyles(initStatus, isSelected)}
       />
       {showName && (
         <Text
-          text={name}
+          text={displayName}
           x={x - (radius / 2) * 2}
           y={y - (radius / 2) * 1.8}
           visible={visible}
