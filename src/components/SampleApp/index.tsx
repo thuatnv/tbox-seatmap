@@ -70,13 +70,17 @@ const SampleApp = () => {
           data={data?.result}
           chosenSectionId={chosenId}
           chosenSectionData={sectionData?.result}
-          serviceLocation="mobile" // handle error TODO
-          selectedSeatsIds={selectedSeatsIds} // handle error TODO
-          onSelectSeat={handleSelect} // handle error TODO
-          onDeselectSeat={handleDeselect} // handle error TODO
+          serviceLocation="mobile"
+          selectedSeatsIds={selectedSeatsIds}
+          onSelectSeat={handleSelect}
+          onDeselectSeat={handleDeselect}
           // mobile
           onPostMessage={(msg) => {
             console.log({ msg });
+          }}
+          // error
+          onError={(err) => {
+            console.log(err);
           }}
         />
       )}

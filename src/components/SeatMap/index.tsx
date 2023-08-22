@@ -33,6 +33,8 @@ type SeatmapProps = {
   w: number;
   h: number;
   data: Result;
+  serviceLocation: "web" | "mobile" | "admin";
+
   isMinimap?: boolean;
   isWheelable?: boolean;
   isDraggable?: boolean;
@@ -40,16 +42,12 @@ type SeatmapProps = {
   hasSeatNumbers?: boolean;
   chosenSectionId?: number;
   chosenSectionData?: SectionResult;
-  serviceLocation: "web" | "mobile" | "admin";
 
   onSectionClick?: (arg0: Section) => void;
   onError?: (arg0: Record<string, string | number> | undefined) => void;
   onPostMessage?: (arg0: string) => void;
 
-  onSelectSeat?: (
-    arg0?: number,
-    arg1?: Record<string, string | number | boolean>
-  ) => void;
+  onSelectSeat?: (arg0?: number, arg1?: ClickedSeatData) => void;
   onDeselectSeat?: (arg0?: number) => void;
   selectedSeatsIds?: number[];
 };
@@ -66,15 +64,15 @@ const SeatMap: React.FC<SeatmapProps> = ({
   hasSeatNumbers = true,
   chosenSectionId = 0,
   chosenSectionData = undefined,
-  serviceLocation = "web",
+  serviceLocation = "",
 
   onSectionClick = () => {},
   onPostMessage = () => {},
   onError = () => {},
 
-  onSelectSeat = () => {},
-  onDeselectSeat = () => {},
-  selectedSeatsIds = [],
+  onSelectSeat = undefined,
+  onDeselectSeat = undefined,
+  selectedSeatsIds = undefined,
 }) => {
   // states
   const [groupDimensions, setGroupDimensions] = useState<Partial<IRect>>({});
@@ -338,6 +336,25 @@ const SeatMap: React.FC<SeatmapProps> = ({
       return;
     }
 
+    if (!serviceLocation) {
+      setErrors({
+        code: 1003,
+        message: `[ERROR][${ERRORS[1003]}]: serviceLocation is compulsory!`,
+      });
+      return;
+    }
+
+    const isInValidServiceLocation = !["web", "mobile", "mweb"].includes(
+      serviceLocation
+    );
+    if (isInValidServiceLocation) {
+      setErrors({
+        code: 1003,
+        message: `[ERROR][${ERRORS[1003]}]: serviceLocation can only be 'web', 'mobile' or 'mweb'!`,
+      });
+      return;
+    }
+
     const hasSectionIdButNoData =
       chosenSectionId !== 0 &&
       !isMinimap &&
@@ -367,10 +384,33 @@ const SeatMap: React.FC<SeatmapProps> = ({
         code: 1003,
         message: `[ERROR][${ERRORS[1003]}]: Must provide 'chosenSectionId' if 'isMinimap' is true!`,
       });
+      return;
+    }
+
+    if (
+      chosenSectionId &&
+      !isMinimap &&
+      (!selectedSeatsIds || !onSelectSeat || !onDeselectSeat)
+    ) {
+      setErrors({
+        code: 1003,
+        message: `[ERROR][${ERRORS[1003]}]: Must provide 'selectedSeatsIds', 'onSelectSeat' AND 'onDeselectSeat' if 'chosenSectionId' exists!`,
+      });
     }
 
     setInitErrorCheck(true);
-  }, [chosenSectionData, chosenSectionId, data, h, isMinimap, w]);
+  }, [
+    chosenSectionData,
+    chosenSectionId,
+    data,
+    h,
+    isMinimap,
+    onDeselectSeat,
+    onSelectSeat,
+    selectedSeatsIds,
+    serviceLocation,
+    w,
+  ]);
   useEffect(() => {
     if (!hasError) {
       if (errors && Object.keys(errors).length) {

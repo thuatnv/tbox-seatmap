@@ -2,6 +2,7 @@ import { KonvaEventObject } from "konva/lib/Node";
 import { useState } from "react";
 import { Circle, Group, Text } from "react-konva";
 import { getSeatStyles, seatStatusNumToStr } from "./helpers";
+import { ClickedSeatData } from "types/section";
 
 type SeatProps = {
   id: number;
@@ -16,13 +17,10 @@ type SeatProps = {
   initStatus: number;
   onClick?: (arg0: KonvaEventObject<MouseEvent>) => void;
 
-  onSelectSeat: (
-    arg0?: number,
-    arg1?: Record<string, string | number | boolean>
-  ) => void;
+  onSelectSeat: (arg0?: number, arg1?: ClickedSeatData) => void;
   onDeselectSeat: (arg0?: number) => void;
   isSelected: boolean;
-  seatDataPack: Record<string, string | number | boolean>;
+  seatDataPack: ClickedSeatData;
 };
 
 const getStyles = (initStatus: number, isSelected: boolean | undefined) => {
