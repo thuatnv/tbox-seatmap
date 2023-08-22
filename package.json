@@ -1,5 +1,5 @@
 {
-  "name": "@tikivn/tbox-seatmap",
+  "name": "@tbox/seatmap",
   "version": "0.0.12",
   "type": "module",
   "source": "src/index.ts",
