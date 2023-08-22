@@ -2,8 +2,8 @@ import styled from "styled-components";
 
 export const SeatmapWrapper = styled.div`
   /* background-color: #000; */
-  /* overflow: hidden;
-  overscroll-behavior: none; */
+  overflow: hidden;
+  overscroll-behavior: none;
 
   border: 1px solid #2dc275;
   border-radius: 0.25rem;
