@@ -278,13 +278,14 @@ const SeatMap: React.FC<SeatmapProps> = ({
   const onStageTouchMove = (e: KonvaEventObject<TouchEvent>) => {
     try {
       e.evt.preventDefault();
+      const stage = stageRef.current;
       const layer = layerRef.current;
       const touch1 = e.evt.touches[0];
       const touch2 = e.evt.touches[1];
-
       if (touch1 && touch2) {
         setTouchDraggable(false);
-        if (layer) {
+        if (stage && layer) {
+          if (stage.isDragging()) stage.stopDrag();
           if (layer.isDragging()) layer.stopDrag();
 
           const p1 = {
@@ -304,18 +305,16 @@ const SeatMap: React.FC<SeatmapProps> = ({
           const dist = getDistance(p1, p2);
           if (!lastDist) lastDist = dist;
 
-          // local coordinates of center point
           const pointTo = {
-            x: (newCenter.x - layer.x()) / layer.scaleX(),
-            y: (newCenter.y - layer.y()) / layer.scaleX(),
+            x: (newCenter.x - stage.x()) / stage.scaleX(),
+            y: (newCenter.y - stage.y()) / stage.scaleY(),
           };
 
-          const scaleInner = layer.scaleX() * (dist / lastDist);
-          layer.scaleX(scaleInner);
-          layer.scaleY(scaleInner);
-          setScale(scaleInner);
+          const scaleInner = stage.scaleX() * (dist / lastDist);
+          stage.scaleX(scaleInner);
+          stage.scaleY(scaleInner);
+          setScale(layer.scaleX());
 
-          // calculate new position of the layer
           const dx = newCenter.x - lastCenter.x;
           const dy = newCenter.y - lastCenter.y;
 
@@ -323,12 +322,10 @@ const SeatMap: React.FC<SeatmapProps> = ({
             x: newCenter.x - pointTo.x * scaleInner + dx,
             y: newCenter.y - pointTo.y * scaleInner + dy,
           };
-
-          layer.position(newPos);
+          stage.position(newPos);
 
           lastDist = dist;
           lastCenter = newCenter;
-          setTouchDraggable(true);
         }
       }
     } catch (error) {

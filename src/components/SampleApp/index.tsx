@@ -5,16 +5,16 @@ import { Data } from "types/seatmap";
 import { Data as SectionData } from "types/section";
 
 // for initial testing
-const showingId = 23;
-const chosenId = 448;
+// const showingId = 23;
+// const chosenId = 448;
 
 // for stage on click
 // const showingId = 164;
 // const chosenId = 457;
 
 // for event 74
-// const showingId = 125;
-// const chosenId = 418;
+const showingId = 125;
+const chosenId = 418;
 // 404, 406
 
 const SampleApp = () => {
@@ -80,10 +80,10 @@ const SampleApp = () => {
           w={360}
           h={550}
           data={data?.result}
-          serviceLocation="admin"
+          serviceLocation="mobile"
           // render section
-          // chosenSectionId={chosenId}
-          // chosenSectionData={sectionData?.result}
+          chosenSectionId={chosenId}
+          chosenSectionData={sectionData?.result}
           // on seat click
           selectedSeatsIds={selectedSeatsIds}
           onSelectSeat={handleSelect}
