@@ -77,13 +77,13 @@ const SampleApp = () => {
           isWheelable
           hasTools
           // must have
-          w={360}
-          h={550}
+          w={350}
+          h={425}
           data={data?.result}
           serviceLocation="mobile"
           // render section
-          chosenSectionId={chosenId}
-          chosenSectionData={sectionData?.result}
+          // chosenSectionId={chosenId}
+          // chosenSectionData={sectionData?.result}
           // on seat click
           selectedSeatsIds={selectedSeatsIds}
           onSelectSeat={handleSelect}
@@ -100,10 +100,14 @@ const SampleApp = () => {
             console.log(sectionData);
           }}
           // test classes
-          customClasses={{ seatmap: "custom-border", buttons: "custom-btns" }}
+          customClasses={{
+            seatmap: "custom-border",
+            buttons: "custom-btns",
+            stage: "",
+          }}
         />
       )}
-      {/* {data && (
+      {data && (
         <SeatMap
           w={150}
           h={150}
@@ -115,7 +119,7 @@ const SampleApp = () => {
             console.log(err);
           }}
         />
-      )} */}
+      )}
     </div>
   );
 };

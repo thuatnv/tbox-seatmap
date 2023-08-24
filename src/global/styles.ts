@@ -44,8 +44,10 @@ const GlobalStyles = createGlobalStyle`
     display: flex;
     align-items: center;
     justify-content: center;
-    flex-wrap: wrap-reverse;
+    flex-wrap: wrap;
     color: #fff;
+    overflow: auto;
+    padding: 0.5rem 0;
 
     .custom-border {
       border: 1px solid #2dc275;

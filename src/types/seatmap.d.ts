@@ -33,6 +33,8 @@ export interface Section {
   status: number;
   elements: Element[];
   attribute: Attribute;
+  ticketType: TicketType;
+  ticketTypeId: number
 }
 
 export interface Element {
@@ -54,4 +56,21 @@ export interface Attribute {
   scaleX: number;
   scaleY: number;
   rotate: number;
+}
+export interface TicketType {
+  id: number;
+  name: string;
+  description: string;
+  color: string;
+  isFree: boolean;
+  price: number;
+  originalPrice: number;
+  maxQtyPerOrder: number;
+  minQtyPerOrder: number;
+  startTime: string;
+  endTime: string;
+  position: number;
+  status: string;
+  statusName: string;
+  imageUrl: string;
 }

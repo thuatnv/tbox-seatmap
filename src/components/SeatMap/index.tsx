@@ -614,6 +614,7 @@ const SeatMap: React.FC<SeatmapProps> = ({
                   id: sectionId,
                   isReservingSeat: sectionIsReserveSeat,
                   seatMapId: sectionSeatMapId,
+                  ticketType,
                 } = section;
 
                 const hideSection =
@@ -685,9 +686,11 @@ const SeatMap: React.FC<SeatmapProps> = ({
                           {...{
                             fill: isMinimap
                               ? chosenSectionId === sectionId
-                                ? fill
+                                ? `#${ticketType?.color}` || "#d3d3d3"
                                 : "#d3d3d3"
-                              : fill || "#fff",
+                              : `#${ticketType?.color}` ||
+                                "#d3d3d3" ||
+                                "#d3d3d3",
                             data,
                           }}
                           {...(chosenSectionId === 0 ? sectionEventsProps : {})}
