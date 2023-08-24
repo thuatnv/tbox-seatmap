@@ -32,6 +32,7 @@ import {
   handleResetRefs,
 } from "./helpers";
 import { SeatmapWrapper } from "./style";
+import { TicketType } from "types/seatmap";
 
 let lastCenter: Point | null = null;
 let lastDist = 0;
@@ -348,11 +349,16 @@ const SeatMap: React.FC<SeatmapProps> = ({
       });
     }
   };
-  const onSectionMouseEnter = (e: KonvaEventObject<MouseEvent>) => {
+  const onSectionMouseEnter = (
+    e: KonvaEventObject<MouseEvent>,
+    ticketType: TicketType | undefined
+  ) => {
     try {
       if (isMinimap) return;
       const container = e.target?.getStage()?.container();
-      if (container) container.style.cursor = "pointer";
+      if (container) {
+        container.style.cursor = !ticketType ? "not-allowed" : "pointer";
+      }
     } catch (error) {
       setErrors({
         code: 1002,
@@ -615,6 +621,7 @@ const SeatMap: React.FC<SeatmapProps> = ({
                   isReservingSeat: sectionIsReserveSeat,
                   seatMapId: sectionSeatMapId,
                   ticketType,
+                  ticketTypeId: sectionTicketTypeId,
                 } = section;
 
                 const hideSection =
@@ -624,7 +631,7 @@ const SeatMap: React.FC<SeatmapProps> = ({
                 if (hideSection) return null;
 
                 const _handleInnerSectionClick = () => {
-                  if (chosenSectionId !== 0 || isStage) return;
+                  if (chosenSectionId !== 0 || isStage || !ticketType) return;
                   try {
                     if (section && Object.keys(section).length) {
                       onSectionClick(section);
@@ -666,7 +673,8 @@ const SeatMap: React.FC<SeatmapProps> = ({
                         return null;
 
                       const sectionEventsProps = {
-                        onMouseEnter: onSectionMouseEnter,
+                        onMouseEnter: (e: KonvaEventObject<MouseEvent>) =>
+                          onSectionMouseEnter(e, ticketType),
                         onMouseLeave: onSectionMouseLeave,
                       };
 
@@ -720,6 +728,7 @@ const SeatMap: React.FC<SeatmapProps> = ({
                           sectionId,
                           sectionIsReserveSeat,
                           sectionSeatMapId,
+                          sectionTicketTypeId,
                           rowId,
                           rowName,
                           rowStatus,
