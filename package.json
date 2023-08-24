@@ -1,6 +1,6 @@
 {
   "name": "@tbox/seatmap",
-  "version": "0.0.12",
+  "version": "0.0.13",
   "type": "module",
   "source": "src/index.ts",
   "main": "build/index.js",
