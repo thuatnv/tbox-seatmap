@@ -539,7 +539,7 @@ const SeatMap: React.FC<SeatmapProps> = ({
                 if (hideSection) return null;
 
                 const _handleInnerSectionClick = () => {
-                  if (chosenSectionId !== 0) return;
+                  if (chosenSectionId !== 0 || isStage) return;
                   try {
                     if (section && Object.keys(section).length) {
                       onSectionClick(section);

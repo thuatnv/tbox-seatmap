@@ -4,10 +4,17 @@ import { useCallback, useEffect, useState } from "react";
 import { Data } from "types/seatmap";
 import { Data as SectionData } from "types/section";
 
+// for initial testing
 // const showingId = 23;
 // const chosenId = 448;
-const showingId = 125;
-const chosenId = 418;
+
+// for stage on click
+const showingId = 164;
+const chosenId = 457;
+
+// for event 74
+// const showingId = 125;
+// const chosenId = 418;
 // 404, 406
 
 const SampleApp = () => {
@@ -88,6 +95,9 @@ const SampleApp = () => {
           // error
           onError={(err) => {
             console.log(err);
+          }}
+          onSectionClick={(sectionData) => {
+            console.log(sectionData);
           }}
         />
       )}
