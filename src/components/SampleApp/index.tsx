@@ -77,10 +77,10 @@ const SampleApp = () => {
           isWheelable
           hasTools
           // must have
-          w={600}
-          h={600}
+          w={360}
+          h={550}
           data={data?.result}
-          serviceLocation="admin"
+          serviceLocation="mobile"
           // render section
           // chosenSectionId={chosenId}
           // chosenSectionData={sectionData?.result}
@@ -101,7 +101,7 @@ const SampleApp = () => {
           }}
         />
       )}
-      {data && (
+      {/* {data && (
         <SeatMap
           w={150}
           h={150}
@@ -113,7 +113,7 @@ const SampleApp = () => {
             console.log(err);
           }}
         />
-      )}
+      )} */}
     </div>
   );
 };

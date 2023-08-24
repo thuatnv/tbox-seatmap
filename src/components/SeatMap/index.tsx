@@ -52,6 +52,19 @@ type SeatmapProps = {
   selectedSeatsIds?: number[];
 };
 type ResetTrackings = Record<string, Partial<IRect>>;
+type Point = {
+  x: number;
+  y: number;
+};
+
+let lastCenter: Point | null = null;
+let lastDist = 0;
+const getDistance = (p1: Point, p2: Point) =>
+  Math.sqrt(Math.pow(p2.x - p1.x, 2) + Math.pow(p2.y - p1.y, 2));
+const getCenter = (p1: Point, p2: Point) => ({
+  x: (p1.x + p2.x) / 2,
+  y: (p1.y + p2.y) / 2,
+});
 
 const SeatMap: React.FC<SeatmapProps> = ({
   w = 0,
@@ -83,6 +96,7 @@ const SeatMap: React.FC<SeatmapProps> = ({
   const [shouldReset, setShouldReset] = useState<boolean>(false);
   const [scale, setScale] = useState<number>(0);
   const [isInitSectionDone, setInitSectionDone] = useState<boolean>(false);
+  const [touchDraggable, setTouchDraggable] = useState<boolean>(true);
 
   // error states
   const [hasError, setHasError] = useState<boolean>(false);
@@ -496,8 +510,6 @@ const SeatMap: React.FC<SeatmapProps> = ({
           width={w}
           height={h}
           ref={stageRef}
-          draggable={isDraggable && !isMinimap}
-          onDragEnd={checkIfNeedReset}
           visible={isInitErrorCheck && !hasError}
           onWheel={(e) => {
             /* STOP EVEMT AUTO CATCHING */
@@ -509,13 +521,88 @@ const SeatMap: React.FC<SeatmapProps> = ({
             onStageWheel(e);
             checkIfNeedReset();
           }}
+          onTouchStart={() => setTouchDraggable(true)}
+          onTouchMove={(e) => {
+            e.evt.preventDefault();
+            const layer = layerRef.current;
+
+            const touch1 = e.evt.touches[0];
+            const touch2 = e.evt.touches[1];
+
+            if (touch1 && touch2) {
+              setTouchDraggable(false);
+              if (layer) {
+                if (layer.isDragging()) layer.stopDrag();
+
+                const p1 = {
+                  x: touch1.clientX,
+                  y: touch1.clientY,
+                };
+                const p2 = {
+                  x: touch2.clientX,
+                  y: touch2.clientY,
+                };
+
+                if (!lastCenter) {
+                  lastCenter = getCenter(p1, p2);
+                  return;
+                }
+                const newCenter = getCenter(p1, p2);
+                const dist = getDistance(p1, p2);
+                if (!lastDist) lastDist = dist;
+
+                // local coordinates of center point
+                const pointTo = {
+                  x: (newCenter.x - layer.x()) / layer.scaleX(),
+                  y: (newCenter.y - layer.y()) / layer.scaleX(),
+                };
+
+                const scaleInner = layer.scaleX() * (dist / lastDist);
+                layer.scaleX(scaleInner);
+                layer.scaleY(scaleInner);
+                setScale(scaleInner);
+
+                // calculate new position of the layer
+                const dx = newCenter.x - lastCenter.x;
+                const dy = newCenter.y - lastCenter.y;
+
+                const newPos = {
+                  x: newCenter.x - pointTo.x * scaleInner + dx,
+                  y: newCenter.y - pointTo.y * scaleInner + dy,
+                };
+
+                layer.position(newPos);
+
+                lastDist = dist;
+                lastCenter = newCenter;
+                setTouchDraggable(true);
+              }
+            }
+          }}
+          onTouchEnd={() => {
+            lastDist = 0;
+            lastCenter = null;
+            setTouchDraggable(true);
+          }}
+          draggable={
+            (isDraggable && !isMinimap && serviceLocation !== "mobile") ||
+            touchDraggable
+          }
+          onDragEnd={() => {
+            checkIfNeedReset();
+          }}
         >
           <Layer
             id="seatmap-layer"
             ref={layerRef}
             scale={{ x: scale, y: scale }}
-            draggable={isDraggable && !isMinimap}
-            onDragEnd={checkIfNeedReset}
+            draggable={
+              (isDraggable && !isMinimap && serviceLocation !== "mobile") ||
+              touchDraggable
+            }
+            onDragEnd={() => {
+              checkIfNeedReset();
+            }}
           >
             <Group
               ref={groupRef}
