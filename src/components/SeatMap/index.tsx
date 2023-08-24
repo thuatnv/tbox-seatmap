@@ -1,5 +1,5 @@
 /* libraries */
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Group, Layer, Path, Stage } from "react-konva";
 import { v4 as uuidv4 } from "uuid";
 /* types */
@@ -8,8 +8,12 @@ import { Layer as LayerType } from "konva/lib/Layer";
 import { KonvaEventObject } from "konva/lib/Node";
 import { Stage as StageType } from "konva/lib/Stage";
 import { IRect } from "konva/lib/types";
-import { Result, Section } from "types/seatmap";
-import { ClickedSeatData, Result as SectionResult } from "types/section";
+import {
+  Point,
+  PostMessageData,
+  ResetTrackings,
+  SeatmapProps,
+} from "types/seatmap-component";
 /* icons */
 import { ReactComponent as MinusIcon } from "resources/svg/icon-minus-green.svg";
 import { ReactComponent as PlusIcon } from "resources/svg/icon-plus-green.svg";
@@ -20,51 +24,17 @@ import Seat from "components/Seat";
 /* manual: others */
 import { extractWHFromViewBox } from "utils";
 import { ERRORS, maxScale, minScale, scaleBy } from "./constants";
-import { handleChainActions, handleOnWheel, handleResetRefs } from "./helpers";
+import {
+  getCenter,
+  getDistance,
+  handleChainActions,
+  handleOnWheel,
+  handleResetRefs,
+} from "./helpers";
 import { SeatmapWrapper } from "./style";
-
-/* component types */
-type PostMessageData =
-  | Section
-  | ClickedSeatData
-  | Record<string, string | number>
-  | undefined;
-type SeatmapProps = {
-  w: number;
-  h: number;
-  data: Result;
-  serviceLocation: "web" | "mobile" | "admin";
-
-  isMinimap?: boolean;
-  isWheelable?: boolean;
-  isDraggable?: boolean;
-  hasTools?: boolean;
-  hasSeatNumbers?: boolean;
-  chosenSectionId?: number;
-  chosenSectionData?: SectionResult;
-
-  onSectionClick?: (arg0: Section) => void;
-  onError?: (arg0: Record<string, string | number> | undefined) => void;
-  onPostMessage?: (arg0: string) => void;
-
-  onSelectSeat?: (arg0?: number, arg1?: ClickedSeatData) => void;
-  onDeselectSeat?: (arg0?: number) => void;
-  selectedSeatsIds?: number[];
-};
-type ResetTrackings = Record<string, Partial<IRect>>;
-type Point = {
-  x: number;
-  y: number;
-};
 
 let lastCenter: Point | null = null;
 let lastDist = 0;
-const getDistance = (p1: Point, p2: Point) =>
-  Math.sqrt(Math.pow(p2.x - p1.x, 2) + Math.pow(p2.y - p1.y, 2));
-const getCenter = (p1: Point, p2: Point) => ({
-  x: (p1.x + p2.x) / 2,
-  y: (p1.y + p2.y) / 2,
-});
 
 const SeatMap: React.FC<SeatmapProps> = ({
   w = 0,
@@ -303,6 +273,82 @@ const SeatMap: React.FC<SeatmapProps> = ({
       });
     }
   };
+  const onStageTouchMove = (e: KonvaEventObject<TouchEvent>) => {
+    try {
+      e.evt.preventDefault();
+      const layer = layerRef.current;
+      const touch1 = e.evt.touches[0];
+      const touch2 = e.evt.touches[1];
+
+      if (touch1 && touch2) {
+        setTouchDraggable(false);
+        if (layer) {
+          if (layer.isDragging()) layer.stopDrag();
+
+          const p1 = {
+            x: touch1.clientX,
+            y: touch1.clientY,
+          };
+          const p2 = {
+            x: touch2.clientX,
+            y: touch2.clientY,
+          };
+
+          if (!lastCenter) {
+            lastCenter = getCenter(p1, p2);
+            return;
+          }
+          const newCenter = getCenter(p1, p2);
+          const dist = getDistance(p1, p2);
+          if (!lastDist) lastDist = dist;
+
+          // local coordinates of center point
+          const pointTo = {
+            x: (newCenter.x - layer.x()) / layer.scaleX(),
+            y: (newCenter.y - layer.y()) / layer.scaleX(),
+          };
+
+          const scaleInner = layer.scaleX() * (dist / lastDist);
+          layer.scaleX(scaleInner);
+          layer.scaleY(scaleInner);
+          setScale(scaleInner);
+
+          // calculate new position of the layer
+          const dx = newCenter.x - lastCenter.x;
+          const dy = newCenter.y - lastCenter.y;
+
+          const newPos = {
+            x: newCenter.x - pointTo.x * scaleInner + dx,
+            y: newCenter.y - pointTo.y * scaleInner + dy,
+          };
+
+          layer.position(newPos);
+
+          lastDist = dist;
+          lastCenter = newCenter;
+          setTouchDraggable(true);
+        }
+      }
+    } catch (error) {
+      setErrors({
+        code: 1002,
+        message: `[ERROR][${ERRORS[1002]}][onStageTouchMove]: ${error}`,
+      });
+    }
+  };
+  const onStageTouchMoveEnd = (e: KonvaEventObject<TouchEvent>) => {
+    try {
+      e.evt.preventDefault();
+      lastDist = 0;
+      lastCenter = null;
+      setTouchDraggable(true);
+    } catch (error) {
+      setErrors({
+        code: 1002,
+        message: `[ERROR][${ERRORS[1002]}][onStageTouchMoveEnd]: ${error}`,
+      });
+    }
+  };
   const onSectionMouseEnter = (e: KonvaEventObject<MouseEvent>) => {
     try {
       if (isMinimap) return;
@@ -485,6 +531,14 @@ const SeatMap: React.FC<SeatmapProps> = ({
     }
   }, [chosenSectionId, handleInitChosenSection, isResetDone]);
 
+  // memos
+  const shouldDBeDraggable = useMemo(
+    () =>
+      (isDraggable && !isMinimap && serviceLocation !== "mobile") ||
+      touchDraggable,
+    [isDraggable, isMinimap, serviceLocation, touchDraggable]
+  );
+
   // render
   return (
     <SeatmapWrapper style={{ opacity: isInitErrorCheck && !hasError ? 1 : 0 }}>
@@ -511,84 +565,21 @@ const SeatMap: React.FC<SeatmapProps> = ({
           height={h}
           ref={stageRef}
           visible={isInitErrorCheck && !hasError}
+          // dragging related
+          draggable={shouldDBeDraggable}
+          onTouchStart={() => setTouchDraggable(true)}
+          onDragEnd={checkIfNeedReset}
+          // important for mobile, pinch to zoom
+          onTouchMove={onStageTouchMove}
+          onTouchEnd={onStageTouchMoveEnd}
+          // scale using trackpad
           onWheel={(e) => {
             /* STOP EVEMT AUTO CATCHING */
             e.evt.preventDefault();
             e.evt.stopPropagation();
             /* STOP EVEMT AUTO CATCHING */
-
             if (!isResetDone) return;
             onStageWheel(e);
-            checkIfNeedReset();
-          }}
-          onTouchStart={() => setTouchDraggable(true)}
-          onTouchMove={(e) => {
-            e.evt.preventDefault();
-            const layer = layerRef.current;
-
-            const touch1 = e.evt.touches[0];
-            const touch2 = e.evt.touches[1];
-
-            if (touch1 && touch2) {
-              setTouchDraggable(false);
-              if (layer) {
-                if (layer.isDragging()) layer.stopDrag();
-
-                const p1 = {
-                  x: touch1.clientX,
-                  y: touch1.clientY,
-                };
-                const p2 = {
-                  x: touch2.clientX,
-                  y: touch2.clientY,
-                };
-
-                if (!lastCenter) {
-                  lastCenter = getCenter(p1, p2);
-                  return;
-                }
-                const newCenter = getCenter(p1, p2);
-                const dist = getDistance(p1, p2);
-                if (!lastDist) lastDist = dist;
-
-                // local coordinates of center point
-                const pointTo = {
-                  x: (newCenter.x - layer.x()) / layer.scaleX(),
-                  y: (newCenter.y - layer.y()) / layer.scaleX(),
-                };
-
-                const scaleInner = layer.scaleX() * (dist / lastDist);
-                layer.scaleX(scaleInner);
-                layer.scaleY(scaleInner);
-                setScale(scaleInner);
-
-                // calculate new position of the layer
-                const dx = newCenter.x - lastCenter.x;
-                const dy = newCenter.y - lastCenter.y;
-
-                const newPos = {
-                  x: newCenter.x - pointTo.x * scaleInner + dx,
-                  y: newCenter.y - pointTo.y * scaleInner + dy,
-                };
-
-                layer.position(newPos);
-
-                lastDist = dist;
-                lastCenter = newCenter;
-                setTouchDraggable(true);
-              }
-            }
-          }}
-          onTouchEnd={() => {
-            lastDist = 0;
-            lastCenter = null;
-            setTouchDraggable(true);
-          }}
-          draggable={
-            (isDraggable && !isMinimap && serviceLocation !== "mobile") ||
-            touchDraggable
-          }
-          onDragEnd={() => {
             checkIfNeedReset();
           }}
         >
@@ -596,13 +587,10 @@ const SeatMap: React.FC<SeatmapProps> = ({
             id="seatmap-layer"
             ref={layerRef}
             scale={{ x: scale, y: scale }}
-            draggable={
-              (isDraggable && !isMinimap && serviceLocation !== "mobile") ||
-              touchDraggable
-            }
-            onDragEnd={() => {
-              checkIfNeedReset();
-            }}
+            // dragging related
+            draggable={shouldDBeDraggable}
+            onTouchStart={() => setTouchDraggable(true)}
+            onDragEnd={checkIfNeedReset}
           >
             <Group
               ref={groupRef}

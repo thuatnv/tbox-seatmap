@@ -82,8 +82,8 @@ const SampleApp = () => {
           data={data?.result}
           serviceLocation="mobile"
           // render section
-          // chosenSectionId={chosenId}
-          // chosenSectionData={sectionData?.result}
+          chosenSectionId={chosenId}
+          chosenSectionData={sectionData?.result}
           // on seat click
           selectedSeatsIds={selectedSeatsIds}
           onSelectSeat={handleSelect}
