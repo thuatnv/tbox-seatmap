@@ -226,13 +226,11 @@ const SeatMap: React.FC<SeatmapProps> = ({
   const handleZoom = useCallback(
     (type: "out" | "in") => {
       try {
-        const newScale = Math.abs(scale + scaleBy * (type === "out" ? -1 : 1));
-
-        if (newScale >= minScale && newScale <= maxScale) {
-          handleChainActions([
-            () => setScale(scale + scaleBy * (type === "out" ? -1 : 1)),
-            checkIfNeedReset,
-          ]);
+        const offset = chosenSectionId !== 0 ? 5 : 2;
+        const direction = type === "out" ? -1 : 1;
+        const newScale = Math.abs(scale + scaleBy * offset * direction);
+        if (newScale >= minScale - 0.25 && newScale <= maxScale) {
+          handleChainActions([() => setScale(newScale), checkIfNeedReset]);
         }
       } catch (error) {
         setErrors({
@@ -241,7 +239,7 @@ const SeatMap: React.FC<SeatmapProps> = ({
         });
       }
     },
-    [scale, checkIfNeedReset]
+    [scale, chosenSectionId, checkIfNeedReset]
   );
   const handlePostMessage = useCallback(
     (
@@ -344,13 +342,13 @@ const SeatMap: React.FC<SeatmapProps> = ({
       return;
     }
 
-    const isInValidServiceLocation = !["web", "mobile", "mweb"].includes(
+    const isInValidServiceLocation = !["web", "mobile", "admin"].includes(
       serviceLocation
     );
     if (isInValidServiceLocation) {
       setErrors({
         code: 1003,
-        message: `[ERROR][${ERRORS[1003]}]: serviceLocation can only be 'web', 'mobile' or 'mweb'!`,
+        message: `[ERROR][${ERRORS[1003]}]: serviceLocation can only be 'web', 'mobile' or 'admin'!`,
       });
       return;
     }
@@ -478,7 +476,7 @@ const SeatMap: React.FC<SeatmapProps> = ({
     <SeatmapWrapper style={{ opacity: isInitErrorCheck && !hasError ? 1 : 0 }}>
       <div id="stage-container">
         {/* BUTTONS */}
-        {hasTools && !isMinimap && (
+        {hasTools && !isMinimap && serviceLocation !== "mobile" && (
           <div id="btns-container">
             <Button onClick={() => handleZoom("in")}>
               <PlusIcon />
@@ -504,7 +502,7 @@ const SeatMap: React.FC<SeatmapProps> = ({
           onWheel={(e) => {
             /* STOP EVEMT AUTO CATCHING */
             e.evt.preventDefault();
-            // e.evt.stopPropagation();
+            e.evt.stopPropagation();
             /* STOP EVEMT AUTO CATCHING */
 
             if (!isResetDone) return;
@@ -538,7 +536,7 @@ const SeatMap: React.FC<SeatmapProps> = ({
                   !isMinimap &&
                   chosenSectionId !== 0 &&
                   sectionId !== chosenSectionId;
-                if (hideSection) return <></>;
+                if (hideSection) return null;
 
                 const _handleInnerSectionClick = () => {
                   if (chosenSectionId !== 0) return;
@@ -580,7 +578,7 @@ const SeatMap: React.FC<SeatmapProps> = ({
                           ? idx > 0 && display === 1
                           : idx > 0 && display === 2;
                       if (!isStage && (hideCondition1 || hideCondition2))
-                        return <></>;
+                        return null;
 
                       const sectionEventsProps = {
                         onMouseEnter: onSectionMouseEnter,

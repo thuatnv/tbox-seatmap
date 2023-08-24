@@ -1,6 +1,6 @@
 // important, dont touch
 export const scaleBy: number = 0.05;
-export const minScale: number = 0.75;
+export const minScale: number = 0.5;
 export const maxScale: number = 14.0;
 
 // examples only

@@ -4,8 +4,11 @@ import { useCallback, useEffect, useState } from "react";
 import { Data } from "types/seatmap";
 import { Data as SectionData } from "types/section";
 
-const showingId = 23;
-const chosenId = 448;
+// const showingId = 23;
+// const chosenId = 448;
+const showingId = 125;
+const chosenId = 418;
+// 404, 406
 
 const SampleApp = () => {
   const [data, error, loading] = useGetData<Data>(
@@ -62,15 +65,19 @@ const SampleApp = () => {
     <div className="App dark-wrap">
       {data && (
         <SeatMap
-          w={375}
-          h={450}
+          // optionals
           isDraggable
           isWheelable
           hasTools
+          // must have
+          w={600}
+          h={600}
           data={data?.result}
-          chosenSectionId={chosenId}
-          chosenSectionData={sectionData?.result}
-          serviceLocation="mobile"
+          serviceLocation="admin"
+          // render section
+          // chosenSectionId={chosenId}
+          // chosenSectionData={sectionData?.result}
+          // on seat click
           selectedSeatsIds={selectedSeatsIds}
           onSelectSeat={handleSelect}
           onDeselectSeat={handleDeselect}
