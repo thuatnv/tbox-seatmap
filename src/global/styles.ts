@@ -46,6 +46,16 @@ const GlobalStyles = createGlobalStyle`
     justify-content: center;
     flex-wrap: wrap-reverse;
     color: #fff;
+
+    .custom-border {
+      border: 1px solid #2dc275;
+      border-radius: 0.25rem;
+      background-color: #a6a6b0;
+    }
+
+    .custom-btns {
+      background-color: red;
+    }
   }
 `;
 

@@ -56,6 +56,8 @@ const SeatMap: React.FC<SeatmapProps> = ({
   onSelectSeat = undefined,
   onDeselectSeat = undefined,
   selectedSeatsIds = undefined,
+
+  customClasses = {},
 }) => {
   // states
   const [groupDimensions, setGroupDimensions] = useState<Partial<IRect>>({});
@@ -541,11 +543,21 @@ const SeatMap: React.FC<SeatmapProps> = ({
 
   // render
   return (
-    <SeatmapWrapper style={{ opacity: isInitErrorCheck && !hasError ? 1 : 0 }}>
-      <div id="stage-container">
+    <SeatmapWrapper
+      id="seatmap-container"
+      className={`seatmap-container ${customClasses.seatmap || ""}`}
+      style={{ opacity: isInitErrorCheck && !hasError ? 1 : 0 }}
+    >
+      <div
+        id="stage-container"
+        className={`stage-container ${customClasses.stage || ""}`}
+      >
         {/* BUTTONS */}
         {hasTools && !isMinimap && serviceLocation !== "mobile" && (
-          <div id="btns-container">
+          <div
+            id="btns-container"
+            className={`btns-container ${customClasses.buttons || ""}`}
+          >
             <Button onClick={() => handleZoom("in")}>
               <PlusIcon />
             </Button>

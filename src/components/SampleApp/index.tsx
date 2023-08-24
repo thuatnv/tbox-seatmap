@@ -5,12 +5,12 @@ import { Data } from "types/seatmap";
 import { Data as SectionData } from "types/section";
 
 // for initial testing
-// const showingId = 23;
-// const chosenId = 448;
+const showingId = 23;
+const chosenId = 448;
 
 // for stage on click
-const showingId = 164;
-const chosenId = 457;
+// const showingId = 164;
+// const chosenId = 457;
 
 // for event 74
 // const showingId = 125;
@@ -80,10 +80,10 @@ const SampleApp = () => {
           w={360}
           h={550}
           data={data?.result}
-          serviceLocation="mobile"
+          serviceLocation="admin"
           // render section
-          chosenSectionId={chosenId}
-          chosenSectionData={sectionData?.result}
+          // chosenSectionId={chosenId}
+          // chosenSectionData={sectionData?.result}
           // on seat click
           selectedSeatsIds={selectedSeatsIds}
           onSelectSeat={handleSelect}
@@ -99,6 +99,8 @@ const SampleApp = () => {
           onSectionClick={(sectionData) => {
             console.log(sectionData);
           }}
+          // test classes
+          customClasses={{ seatmap: "custom-border", buttons: "custom-btns" }}
         />
       )}
       {/* {data && (

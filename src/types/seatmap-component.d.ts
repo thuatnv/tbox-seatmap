@@ -27,6 +27,12 @@ export type SeatmapProps = {
   onSelectSeat?: (arg0?: number, arg1?: ClickedSeatData) => void;
   onDeselectSeat?: (arg0?: number) => void;
   selectedSeatsIds?: number[];
+
+  customClasses?: {
+    seatmap?: string;
+    stage?: string;
+    buttons?: string;
+  };
 };
 export type ResetTrackings = Record<string, Partial<IRect>>;
 export type Point = {
